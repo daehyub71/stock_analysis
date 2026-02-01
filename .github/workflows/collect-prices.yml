@@ -1,0 +1,102 @@
+name: 📈 Daily Price Collection
+
+on:
+  # 매일 오후 8:30 KST (UTC 11:30) - 월~금만
+  schedule:
+    - cron: '30 11 * * 1-5'
+
+  # 수동 실행 가능
+  workflow_dispatch:
+    inputs:
+      target_date:
+        description: '수집 대상 날짜 (YYYY-MM-DD, 비워두면 오늘)'
+        required: false
+        default: ''
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  collect-prices:
+    runs-on: ubuntu-latest
+
+    # 공휴일 체크 (선택적)
+    # if: github.event_name == 'workflow_dispatch' || (조건)
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: 📦 Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: 🗓️ Check if market is open (KRX)
+        id: market-check
+        run: |
+          python scripts/check_market_day.py
+        env:
+          TARGET_DATE: ${{ github.event.inputs.target_date }}
+
+      - name: 📊 Collect daily prices
+        if: steps.market-check.outputs.is_trading_day == 'true'
+        run: |
+          python scripts/collect_daily_prices.py
+        env:
+          KIS_APP_KEY: ${{ secrets.KIS_APP_KEY }}
+          KIS_APP_SECRET: ${{ secrets.KIS_APP_SECRET }}
+          KIS_ACCOUNT_TYPE: ${{ secrets.KIS_ACCOUNT_TYPE }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          TARGET_DATE: ${{ github.event.inputs.target_date }}
+
+      - name: 📉 Collect valuation (PER/PBR/PSR)
+        if: steps.market-check.outputs.is_trading_day == 'true'
+        run: |
+          python scripts/collect_valuation.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          TARGET_DATE: ${{ github.event.inputs.target_date }}
+
+      - name: 🔢 Calculate technical indicators
+        if: steps.market-check.outputs.is_trading_day == 'true'
+        run: |
+          python scripts/calculate_indicators.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          TARGET_DATE: ${{ github.event.inputs.target_date }}
+
+      - name: 📈 Update daily scores
+        if: steps.market-check.outputs.is_trading_day == 'true'
+        run: |
+          python scripts/run_daily_analysis.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          TARGET_DATE: ${{ github.event.inputs.target_date }}
+
+      - name: 📝 Summary
+        if: always()
+        run: |
+          echo "## 📊 Daily Collection Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date**: $(date '+%Y-%m-%d %H:%M:%S KST' -d '+9 hours')" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trading Day**: ${{ steps.market-check.outputs.is_trading_day }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: 🚨 Notify on failure
+        if: failure()
+        run: |
+          echo "::error::Daily price collection failed!"
+          # 슬랙/이메일 알림 추가 가능

@@ -1,0 +1,101 @@
+# ===================================================
+# Stock Analysis Dashboard - .gitignore
+# ===================================================
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# === Virtual Environment ===
+venv/
+.venv/
+ENV/
+env/
+
+# === Environment Variables ===
+.env
+.env.local
+.env.*.local
+*.env
+
+# === IDE ===
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# === OS ===
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# === Database ===
+*.db
+*.sqlite
+*.sqlite3
+backend/data/*.db
+
+# === Data Files ===
+backend/data/prices/
+backend/data/news/
+backend/data/sentiment/
+backend/data/trends/
+data/
+
+# === Logs ===
+logs/
+*.log
+
+# === Test & Coverage ===
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+.nox/
+
+# === Jupyter ===
+.ipynb_checkpoints/
+
+# === Node.js (Frontend) ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# === Build Output ===
+frontend/dist/
+frontend/build/
+.next/
+out/
+
+# === Misc ===
+*.bak
+*.tmp
+*.temp

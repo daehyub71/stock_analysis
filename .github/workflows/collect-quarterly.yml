@@ -1,0 +1,81 @@
+name: 📊 Quarterly Financial Data (분기별)
+
+on:
+  # 분기별 실행: 1/4/7/10월 첫째주 일요일 오전 10시 KST (UTC 01:00)
+  schedule:
+    - cron: '0 1 1-7 1,4,7,10 0'
+
+  # 수동 실행
+  workflow_dispatch:
+    inputs:
+      force_update:
+        description: '전체 종목 강제 업데이트'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  quarterly-collection:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: 📦 Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: 📈 Collect financial statements
+        run: |
+          python scripts/collect_financials.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          FORCE_UPDATE: ${{ github.event.inputs.force_update }}
+
+      - name: 💰 Collect financial ratios
+        run: |
+          python scripts/collect_ratios.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+      - name: 🏭 Update sector averages
+        run: |
+          python scripts/update_sector_averages.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+      - name: 🔄 Recalculate fundamental scores
+        run: |
+          python scripts/update_fundamental_scores.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+      - name: 📝 Summary
+        if: always()
+        run: |
+          echo "## 📊 Quarterly Collection Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date**: $(date '+%Y-%m-%d %H:%M:%S KST' -d '+9 hours')" >> $GITHUB_STEP_SUMMARY
+          echo "- **Force Update**: ${{ github.event.inputs.force_update || 'false' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: 🚨 Notify on failure
+        if: failure()
+        run: |
+          echo "::error::Quarterly collection failed!"

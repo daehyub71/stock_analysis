@@ -1,0 +1,84 @@
+name: 💬 Sentiment Analysis (주 2회)
+
+on:
+  # 월/목 오후 9시 KST (UTC 12:00)
+  schedule:
+    - cron: '0 12 * * 1,4'
+
+  # 수동 실행
+  workflow_dispatch:
+    inputs:
+      target_date:
+        description: '분석 대상 날짜 (YYYY-MM-DD, 비워두면 오늘)'
+        required: false
+        default: ''
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  sentiment-analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: 📦 Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: 📰 Collect news
+        id: news
+        run: |
+          python scripts/collect_news.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          TARGET_DATE: ${{ github.event.inputs.target_date }}
+
+      - name: 🤖 Run sentiment analysis (OpenAI)
+        run: |
+          python scripts/analyze_sentiment.py
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          TARGET_DATE: ${{ github.event.inputs.target_date }}
+
+      - name: 📈 Collect Google Trends
+        run: |
+          python scripts/collect_trends.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          TARGET_DATE: ${{ github.event.inputs.target_date }}
+
+      - name: 🔄 Update sentiment scores
+        run: |
+          python scripts/update_sentiment_scores.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          TARGET_DATE: ${{ github.event.inputs.target_date }}
+
+      - name: 📝 Summary
+        if: always()
+        run: |
+          echo "## 💬 Sentiment Analysis Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date**: $(date '+%Y-%m-%d %H:%M:%S KST' -d '+9 hours')" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: 🚨 Notify on failure
+        if: failure()
+        run: |
+          echo "::error::Sentiment analysis failed!"
