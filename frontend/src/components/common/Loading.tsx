@@ -17,11 +17,11 @@ export default function Loading({ size = 'md', className, text }: LoadingProps) 
     <div className={cn('flex flex-col items-center justify-center gap-3', className)}>
       <div
         className={cn(
-          'rounded-full border-gray-200 border-t-primary-600 animate-spin',
+          'rounded-full border-gray-200 dark:border-gray-700 border-t-primary-600 animate-spin',
           sizeClasses[size]
         )}
       />
-      {text && <p className="text-sm text-gray-500">{text}</p>}
+      {text && <p className="text-sm text-gray-500 dark:text-gray-400">{text}</p>}
     </div>
   )
 }
@@ -36,7 +36,7 @@ export function LoadingPage() {
 
 export function LoadingOverlay() {
   return (
-    <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
+    <div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 flex items-center justify-center z-10">
       <Loading size="lg" />
     </div>
   )
@@ -46,7 +46,7 @@ export function LoadingSkeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'animate-pulse bg-gray-200 rounded',
+        'animate-pulse bg-gray-200 dark:bg-gray-700 rounded',
         className
       )}
     />

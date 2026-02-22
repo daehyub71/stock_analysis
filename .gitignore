@@ -95,7 +95,19 @@ frontend/build/
 .next/
 out/
 
+# === Personal / Sensitive Files ===
+backend/.env.production
+docs/CHAT_LOG_*.md
+docs/*.xlsx
+docs/*.textClipping
+docs/주요자산보유현황*.md
+docs/screenshots/n.textClipping
+
+# === TypeScript Build Info ===
+*.tsbuildinfo
+
 # === Misc ===
 *.bak
 *.tmp
 *.temp
+*.textClipping

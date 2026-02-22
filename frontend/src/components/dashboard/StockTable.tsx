@@ -42,18 +42,18 @@ export default function StockTable({ stocks, isLoading, sort, onSort }: StockTab
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
+              <tr className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
                 <th className="w-12 px-4 py-3">
                   <span className="sr-only">선택</span>
                 </th>
                 <th className="px-4 py-3 text-left">
                   <button
                     onClick={() => handleSort('name')}
-                    className="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
+                    className="flex items-center gap-1 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-300"
                   >
                     종목
                     <SortIcon field="name" />
@@ -62,21 +62,21 @@ export default function StockTable({ stocks, isLoading, sort, onSort }: StockTab
                 <th className="px-4 py-3 text-left">
                   <button
                     onClick={() => handleSort('sector')}
-                    className="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
+                    className="flex items-center gap-1 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-300"
                   >
                     업종
                     <SortIcon field="sector" />
                   </button>
                 </th>
                 <th className="px-4 py-3 text-right">
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     현재가
                   </span>
                 </th>
                 <th className="px-4 py-3 text-right">
                   <button
                     onClick={() => handleSort('priceChangeRate')}
-                    className="flex items-center gap-1 ml-auto text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
+                    className="flex items-center gap-1 ml-auto text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-300"
                   >
                     등락률
                     <SortIcon field="priceChangeRate" />
@@ -85,19 +85,19 @@ export default function StockTable({ stocks, isLoading, sort, onSort }: StockTab
                 <th className="px-4 py-3 text-center">
                   <button
                     onClick={() => handleSort('totalScore')}
-                    className="flex items-center gap-1 mx-auto text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
+                    className="flex items-center gap-1 mx-auto text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-300"
                   >
                     점수
                     <SortIcon field="totalScore" />
                   </button>
                 </th>
                 <th className="px-4 py-3 text-center">
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     등급
                   </span>
                 </th>
                 <th className="px-4 py-3">
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     점수 분포
                   </span>
                 </th>
@@ -106,7 +106,7 @@ export default function StockTable({ stocks, isLoading, sort, onSort }: StockTab
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {stocks.map((stock) => (
                 <StockRow
                   key={stock.code}
@@ -118,7 +118,7 @@ export default function StockTable({ stocks, isLoading, sort, onSort }: StockTab
               ))}
               {stocks.length === 0 && !isLoading && (
                 <tr>
-                  <td colSpan={9} className="px-4 py-12 text-center text-gray-500">
+                  <td colSpan={9} className="px-4 py-12 text-center text-gray-500 dark:text-gray-400">
                     조건에 맞는 종목이 없습니다.
                   </td>
                 </tr>
@@ -151,7 +151,7 @@ function StockRow({ stock, isSelected, onSelect, onShowDetail }: StockRowProps) 
   const breakdown = analysis.scoreBreakdown
 
   return (
-    <tr className="hover:bg-gray-50 transition-colors">
+    <tr className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
       {/* Checkbox */}
       <td className="px-4 py-3">
         <button
@@ -163,7 +163,7 @@ function StockRow({ stock, isSelected, onSelect, onShowDetail }: StockRowProps) 
             'w-5 h-5 rounded border-2 flex items-center justify-center transition-colors',
             isSelected
               ? 'bg-primary-600 border-primary-600'
-              : 'border-gray-300 hover:border-primary-400'
+              : 'border-gray-300 dark:border-gray-600 hover:border-primary-400'
           )}
         >
           {isSelected && <Check className="w-3 h-3 text-white" />}
@@ -173,19 +173,19 @@ function StockRow({ stock, isSelected, onSelect, onShowDetail }: StockRowProps) 
       {/* Stock Info */}
       <td className="px-4 py-3">
         <Link to={`/stocks/${stock.code}`} className="block">
-          <p className="font-medium text-gray-900 hover:text-primary-600">{stock.name}</p>
-          <p className="text-xs text-gray-500">{stock.code}</p>
+          <p className="font-medium text-gray-900 dark:text-gray-100 hover:text-primary-600">{stock.name}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{stock.code}</p>
         </Link>
       </td>
 
       {/* Sector */}
       <td className="px-4 py-3">
-        <span className="text-sm text-gray-600">{stock.sector || '-'}</span>
+        <span className="text-sm text-gray-600 dark:text-gray-400">{stock.sector || '-'}</span>
       </td>
 
       {/* Current Price */}
       <td className="px-4 py-3 text-right">
-        <span className="font-mono text-sm text-gray-900">
+        <span className="font-mono text-sm text-gray-900 dark:text-gray-100">
           {stock.currentPrice ? formatNumber(stock.currentPrice) : '-'}
         </span>
       </td>
@@ -197,13 +197,13 @@ function StockRow({ stock, isSelected, onSelect, onShowDetail }: StockRowProps) 
             {formatPercent(stock.priceChangeRate)}
           </span>
         ) : (
-          <span className="text-gray-400">-</span>
+          <span className="text-gray-400 dark:text-gray-400">-</span>
         )}
       </td>
 
       {/* Total Score */}
       <td className="px-4 py-3 text-center">
-        <span className="font-bold text-gray-900">{analysis.totalScore.toFixed(1)}</span>
+        <span className="font-bold text-gray-900 dark:text-gray-100">{analysis.totalScore.toFixed(1)}</span>
       </td>
 
       {/* Grade */}
@@ -238,7 +238,7 @@ function StockRow({ stock, isSelected, onSelect, onShowDetail }: StockRowProps) 
             title={`감정: ${breakdown.sentiment.score}`}
           />
         </div>
-        <div className="flex justify-between mt-1 text-[10px] text-gray-400">
+        <div className="flex justify-between mt-1 text-[10px] text-gray-400 dark:text-gray-400">
           <span>기술</span>
           <span>기본</span>
           <span>감정</span>
@@ -252,7 +252,7 @@ function StockRow({ stock, isSelected, onSelect, onShowDetail }: StockRowProps) 
             e.preventDefault()
             onShowDetail()
           }}
-          className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+          className="p-1.5 text-gray-400 dark:text-gray-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
           title="분석 상세 보기"
         >
           <Info className="w-4 h-4" />

@@ -105,6 +105,13 @@ def get_portfolios() -> list[dict]:
     return response.data
 
 
+def get_portfolio_by_id(portfolio_id: int) -> Optional[dict]:
+    """포트폴리오 ID로 조회"""
+    client = get_client()
+    response = client.table("portfolios_anal").select("*").eq("id", portfolio_id).execute()
+    return response.data[0] if response.data else None
+
+
 def get_portfolio_by_name(name: str) -> Optional[dict]:
     """포트폴리오명으로 조회"""
     client = get_client()
@@ -112,15 +119,39 @@ def get_portfolio_by_name(name: str) -> Optional[dict]:
     return response.data[0] if response.data else None
 
 
-def create_portfolio(name: str, source: str, report_date: str) -> dict:
+def create_portfolio(name: str, source: str = "", report_date: str = "") -> dict:
     """포트폴리오 생성"""
     client = get_client()
-    response = client.table("portfolios_anal").insert({
-        "name": name,
-        "source": source,
-        "report_date": report_date,
-    }).execute()
+    data = {"name": name}
+    if source:
+        data["source"] = source
+    if report_date:
+        data["report_date"] = report_date
+    response = client.table("portfolios_anal").insert(data).execute()
     return response.data[0] if response.data else {}
+
+
+def update_portfolio(portfolio_id: int, data: dict) -> dict:
+    """포트폴리오 수정"""
+    try:
+        client = get_client()
+        response = client.table("portfolios_anal").update(data).eq("id", portfolio_id).execute()
+        return response.data[0] if response.data else {}
+    except Exception as e:
+        print(f"❌ Failed to update portfolio {portfolio_id}: {e}")
+        return {}
+
+
+def delete_portfolio(portfolio_id: int) -> bool:
+    """포트폴리오 삭제 (종목도 함께 삭제)"""
+    try:
+        client = get_client()
+        client.table("portfolio_stocks_anal").delete().eq("portfolio_id", portfolio_id).execute()
+        client.table("portfolios_anal").delete().eq("id", portfolio_id).execute()
+        return True
+    except Exception as e:
+        print(f"❌ Failed to delete portfolio {portfolio_id}: {e}")
+        return False
 
 
 # === Portfolio Stocks (portfolio_stocks_anal 테이블) ===
@@ -142,6 +173,32 @@ def upsert_portfolio_stock(data: dict) -> dict:
         on_conflict="portfolio_id,stock_id"
     ).execute()
     return response.data[0] if response.data else {}
+
+
+def delete_portfolio_stock(portfolio_id: int, stock_id: int) -> bool:
+    """포트폴리오에서 종목 제거"""
+    try:
+        client = get_client()
+        client.table("portfolio_stocks_anal").delete().eq(
+            "portfolio_id", portfolio_id
+        ).eq("stock_id", stock_id).execute()
+        return True
+    except Exception as e:
+        print(f"❌ Failed to delete portfolio stock: {e}")
+        return False
+
+
+def update_portfolio_stock_weight(portfolio_id: int, stock_id: int, weight: float) -> dict:
+    """포트폴리오 종목 비중 수정"""
+    try:
+        client = get_client()
+        response = client.table("portfolio_stocks_anal").update({
+            "weight": weight
+        }).eq("portfolio_id", portfolio_id).eq("stock_id", stock_id).execute()
+        return response.data[0] if response.data else {}
+    except Exception as e:
+        print(f"❌ Failed to update stock weight: {e}")
+        return {}
 
 
 # === Sector Averages (sector_averages_anal 테이블) ===
@@ -366,6 +423,86 @@ def delete_old_news(stock_id: int, days: int = 60) -> int:
     except Exception as e:
         print(f"❌ Failed to delete old news: {e}")
         return 0
+
+
+# === Analysis History & Score Changes ===
+
+def get_analysis_history(stock_id: int, days: int = 30) -> list[dict]:
+    """분석 결과 히스토리 조회 (최근 N일)"""
+    try:
+        from datetime import timedelta
+        cutoff_date = (datetime.utcnow() - timedelta(days=days)).strftime("%Y-%m-%d")
+        client = get_client()
+        response = client.table("analysis_results_anal").select(
+            "analysis_date, total_score, tech_total, fund_total, sent_total, grade"
+        ).eq(
+            "stock_id", stock_id
+        ).gte(
+            "analysis_date", cutoff_date
+        ).order("analysis_date", desc=False).execute()
+        return response.data
+    except Exception as e:
+        print(f"❌ Failed to get analysis history: {e}")
+        return []
+
+
+def get_score_changes(threshold: float = 5.0) -> list[dict]:
+    """
+    전일 대비 점수 변화 감지
+
+    Returns: [{stock_code, stock_name, prev_score, curr_score, change, grade}]
+    """
+    try:
+        client = get_client()
+
+        # 최근 2일의 분석 결과 조회 (모든 종목)
+        from datetime import timedelta
+        today = datetime.utcnow().strftime("%Y-%m-%d")
+        two_days_ago = (datetime.utcnow() - timedelta(days=2)).strftime("%Y-%m-%d")
+
+        response = client.table("analysis_results_anal").select(
+            "stock_id, analysis_date, total_score, grade, stocks_anal(code, name)"
+        ).gte(
+            "analysis_date", two_days_ago
+        ).order("analysis_date", desc=True).execute()
+
+        if not response.data:
+            return []
+
+        # stock_id별로 그룹핑
+        by_stock: dict[int, list[dict]] = {}
+        for row in response.data:
+            sid = row["stock_id"]
+            if sid not in by_stock:
+                by_stock[sid] = []
+            by_stock[sid].append(row)
+
+        changes = []
+        for sid, rows in by_stock.items():
+            if len(rows) < 2:
+                continue
+            curr = rows[0]  # 최신
+            prev = rows[1]  # 전일
+            change = curr["total_score"] - prev["total_score"]
+            if abs(change) >= threshold:
+                stock_info = curr.get("stocks_anal") or {}
+                changes.append({
+                    "stockCode": stock_info.get("code", ""),
+                    "stockName": stock_info.get("name", ""),
+                    "prevScore": round(prev["total_score"], 1),
+                    "currScore": round(curr["total_score"], 1),
+                    "change": round(change, 1),
+                    "grade": curr.get("grade", ""),
+                    "date": curr.get("analysis_date", ""),
+                })
+
+        # 변화량 절대값 기준 정렬
+        changes.sort(key=lambda x: abs(x["change"]), reverse=True)
+        return changes
+
+    except Exception as e:
+        print(f"❌ Failed to get score changes: {e}")
+        return []
 
 
 # === Utility ===

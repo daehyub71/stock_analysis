@@ -7,14 +7,32 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(30, 30, 30, 0.9);
-  background-color: #f8fafc;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Light mode (default) - explicit styles to prevent browser auto-dark */
+html:not(.dark) {
+  color-scheme: light !important;
+  color: rgba(30, 30, 30, 0.9);
+  background-color: #f8fafc;
+}
+
+html:not(.dark) body {
+  background-color: #f8fafc;
+}
+
+/* Dark mode */
+html.dark {
+  color-scheme: dark;
+  color: #e5e7eb;
+  background-color: #111827;
+}
+
+html.dark body {
+  background-color: #111827;
 }
 
 body {
@@ -40,6 +58,18 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
 }
 
 /* Grade colors */

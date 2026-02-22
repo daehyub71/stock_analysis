@@ -11,6 +11,7 @@ import {
 } from 'recharts'
 import { stockApi } from '@/services/api'
 import { Loader2 } from 'lucide-react'
+import { useChartTheme } from '@/hooks/useChartTheme'
 
 interface PriceChartProps {
   stockCode: string
@@ -66,6 +67,7 @@ export default function PriceChart({
   const [chartData, setChartData] = useState<ChartDataPoint[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const chartTheme = useChartTheme()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -119,17 +121,17 @@ export default function PriceChart({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 bg-gray-50 rounded-lg">
+      <div className="flex items-center justify-center h-64 bg-gray-50 dark:bg-gray-800 rounded-lg">
         <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
-        <span className="ml-2 text-gray-500">차트 로딩중...</span>
+        <span className="ml-2 text-gray-500 dark:text-gray-400">차트 로딩중...</span>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-64 bg-gray-50 rounded-lg">
-        <span className="text-gray-500">{error}</span>
+      <div className="flex items-center justify-center h-64 bg-gray-50 dark:bg-gray-800 rounded-lg">
+        <span className="text-gray-500 dark:text-gray-400">{error}</span>
       </div>
     )
   }
@@ -147,12 +149,12 @@ export default function PriceChart({
   const maxPrice = Math.max(...allPrices) * 1.05
 
   return (
-    <div className="bg-white rounded-lg">
+    <div className="bg-white dark:bg-gray-800 rounded-lg">
       <div className="flex items-center justify-between mb-4">
-        <h4 className="text-sm font-medium text-gray-700">📈 1년 주가 차트</h4>
+        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">📈 1년 주가 차트</h4>
         <div className="flex items-center gap-4 text-xs">
           <span className="flex items-center gap-1">
-            <span className="w-3 h-0.5 bg-gray-700"></span> 주가
+            <span className="w-3 h-0.5 bg-gray-700 dark:bg-gray-300"></span> 주가
           </span>
           <span className="flex items-center gap-1">
             <span className="w-3 h-0.5 bg-red-400"></span> MA5
@@ -174,18 +176,18 @@ export default function PriceChart({
           data={chartData}
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+          <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridColor} />
           <XAxis
             dataKey="date"
             tickFormatter={formatDate}
-            tick={{ fontSize: 11 }}
+            tick={{ fontSize: 11, fill: chartTheme.textColor }}
             interval="preserveStartEnd"
             minTickGap={50}
           />
           <YAxis
             domain={[minPrice, maxPrice]}
             tickFormatter={(v) => (v / 1000).toFixed(0) + 'K'}
-            tick={{ fontSize: 11 }}
+            tick={{ fontSize: 11, fill: chartTheme.textColor }}
             width={50}
           />
           <Tooltip
@@ -194,7 +196,7 @@ export default function PriceChart({
               name === 'close' ? '종가' : name.toUpperCase(),
             ]}
             labelFormatter={(label) => `날짜: ${label}`}
-            contentStyle={{ fontSize: 12 }}
+            contentStyle={{ fontSize: 12, backgroundColor: chartTheme.tooltipBg, border: '1px solid ' + chartTheme.tooltipBorder, borderRadius: '8px' }}
           />
 
           {/* Current price reference line */}
@@ -254,7 +256,7 @@ export default function PriceChart({
           <Line
             type="monotone"
             dataKey="close"
-            stroke="#374151"
+            stroke={chartTheme.priceStroke}
             strokeWidth={1.5}
             dot={false}
             name="close"
@@ -264,28 +266,28 @@ export default function PriceChart({
 
       {/* Current MA values from indicators */}
       {(ma5 || ma20 || ma60 || ma120) && (
-        <div className="mt-4 pt-4 border-t border-gray-100">
+        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
           <div className="grid grid-cols-4 gap-2 text-center text-xs">
-            <div className="p-2 bg-red-50 rounded">
-              <span className="text-gray-500">MA5</span>
+            <div className="p-2 bg-red-50 dark:bg-red-900/30 rounded">
+              <span className="text-gray-500 dark:text-gray-400">MA5</span>
               <p className="font-medium text-red-600">
                 {ma5 ? ma5.toLocaleString() : '-'}
               </p>
             </div>
-            <div className="p-2 bg-orange-50 rounded">
-              <span className="text-gray-500">MA20</span>
+            <div className="p-2 bg-orange-50 dark:bg-orange-900/30 rounded">
+              <span className="text-gray-500 dark:text-gray-400">MA20</span>
               <p className="font-medium text-orange-600">
                 {ma20 ? ma20.toLocaleString() : '-'}
               </p>
             </div>
-            <div className="p-2 bg-green-50 rounded">
-              <span className="text-gray-500">MA60</span>
+            <div className="p-2 bg-green-50 dark:bg-green-900/30 rounded">
+              <span className="text-gray-500 dark:text-gray-400">MA60</span>
               <p className="font-medium text-green-600">
                 {ma60 ? ma60.toLocaleString() : '-'}
               </p>
             </div>
-            <div className="p-2 bg-blue-50 rounded">
-              <span className="text-gray-500">MA120</span>
+            <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded">
+              <span className="text-gray-500 dark:text-gray-400">MA120</span>
               <p className="font-medium text-blue-600">
                 {ma120 ? ma120.toLocaleString() : '-'}
               </p>

@@ -23,9 +23,9 @@ export default function ScoreCard({
   const percentage = (score / maxScore) * 100
 
   return (
-    <div className={cn('bg-white rounded-xl p-4 shadow-sm border border-gray-100', className)}>
+    <div className={cn('bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700', className)}>
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-medium text-gray-600">{title}</h3>
+        <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</h3>
         {grade && (
           <span
             className={cn(
@@ -40,12 +40,12 @@ export default function ScoreCard({
       </div>
 
       <div className="flex items-baseline gap-1 mb-2">
-        <span className="text-2xl font-bold text-gray-900">{score.toFixed(1)}</span>
+        <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">{score.toFixed(1)}</span>
         <span className="text-sm text-gray-400">/ {maxScore}</span>
       </div>
 
       {showBar && (
-        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+        <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
           <div
             className={cn('h-full rounded-full transition-all duration-500', getScoreColor(score, maxScore))}
             style={{ width: `${percentage}%` }}
@@ -54,7 +54,7 @@ export default function ScoreCard({
       )}
 
       {description && (
-        <p className="mt-2 text-xs text-gray-500">{description}</p>
+        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">{description}</p>
       )}
     </div>
   )
@@ -75,9 +75,9 @@ interface TotalScoreCardProps {
 
 export function TotalScoreCard({ totalScore, maxScore, grade, breakdown, sentimentSource }: TotalScoreCardProps) {
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">종합 점수</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">종합 점수</h2>
         <span
           className={cn(
             'px-3 py-1 text-lg font-bold rounded-lg',
@@ -90,7 +90,7 @@ export function TotalScoreCard({ totalScore, maxScore, grade, breakdown, sentime
       </div>
 
       <div className="flex items-baseline gap-2 mb-6">
-        <span className="text-5xl font-bold text-gray-900">{totalScore.toFixed(1)}</span>
+        <span className="text-5xl font-bold text-gray-900 dark:text-gray-100">{totalScore.toFixed(1)}</span>
         <span className="text-xl text-gray-400">/ {maxScore}</span>
       </div>
 
@@ -125,20 +125,20 @@ function ScoreBreakdownItem({ label, score, max, color, isNegative, badge }: Sco
   return (
     <div className="flex items-center gap-3">
       <div className="w-20 flex items-center gap-1">
-        <span className="text-sm text-gray-600">{label}</span>
+        <span className="text-sm text-gray-600 dark:text-gray-400">{label}</span>
         {badge && (
-          <span className="px-1.5 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-700 rounded">
+          <span className="px-1.5 py-0.5 text-[10px] font-medium bg-blue-100 dark:bg-blue-900/40 text-blue-700 rounded">
             {badge}
           </span>
         )}
       </div>
-      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+      <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
         <div
           className={cn('h-full rounded-full', color)}
           style={{ width: `${percentage}%` }}
         />
       </div>
-      <span className={cn('w-16 text-sm text-right', isNegative ? 'text-red-500' : 'text-gray-700')}>
+      <span className={cn('w-16 text-sm text-right', isNegative ? 'text-red-500' : 'text-gray-700 dark:text-gray-300')}>
         {score.toFixed(1)} / {max}
       </span>
     </div>

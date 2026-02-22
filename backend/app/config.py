@@ -42,6 +42,21 @@ class Settings(BaseSettings):
     # === OpenAI API ===
     openai_api_key: Optional[str] = None
 
+    # === SMTP Email ===
+    smtp_server: Optional[str] = None
+    smtp_port: int = 587
+    smtp_user: Optional[str] = None
+    smtp_password: Optional[str] = None
+    recipient_email: Optional[str] = None
+
+    @property
+    def smtp_host(self) -> Optional[str]:
+        return self.smtp_server
+
+    @property
+    def smtp_from_email(self) -> Optional[str]:
+        return self.smtp_user
+
     # === Redis (선택) ===
     redis_url: Optional[str] = None
 

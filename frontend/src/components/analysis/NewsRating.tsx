@@ -11,7 +11,9 @@ import {
   Minus,
   AlertCircle,
   CheckCircle2,
+  CheckSquare,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import { analysisApi } from '@/services/api'
 import { cn } from '@/lib/utils'
 import type { NewsItem } from '@/types'
@@ -27,7 +29,7 @@ export default function NewsRating({ stockCode, stockName, className }: NewsRati
   const [expandedNews, setExpandedNews] = useState<Set<number>>(new Set())
 
   // 뉴스 목록 조회
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['newsRating', stockCode],
     queryFn: () => analysisApi.getNewsList(stockCode),
     enabled: !!stockCode,
@@ -37,17 +39,37 @@ export default function NewsRating({ stockCode, stockName, className }: NewsRati
   // 뉴스 수집 mutation
   const collectMutation = useMutation({
     mutationFn: () => analysisApi.collectNews(stockCode, 30, 50),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['newsRating', stockCode] })
+      toast.success(`뉴스 ${data.collectedCount}건 수집 완료`)
+    },
+    onError: () => {
+      toast.error('뉴스 수집에 실패했습니다.')
     },
   })
+
+  // 평점 변경 후 관련 캐시 모두 무효화
+  const invalidateAfterRating = () => {
+    queryClient.invalidateQueries({ queryKey: ['newsRating', stockCode] })
+    queryClient.invalidateQueries({ queryKey: ['analysis', stockCode] })
+    queryClient.invalidateQueries({ queryKey: ['stocks'] })
+  }
 
   // 평점 업데이트 mutation
   const rateMutation = useMutation({
     mutationFn: ({ newsId, rating }: { newsId: number; rating: number }) =>
       analysisApi.updateNewsRating(stockCode, newsId, rating),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['newsRating', stockCode] })
+      invalidateAfterRating()
+    },
+  })
+
+  // 일괄 평점 mutation
+  const rateAllMutation = useMutation({
+    mutationFn: (rating: number) => analysisApi.rateAllNews(stockCode, rating),
+    onSuccess: (data) => {
+      invalidateAfterRating()
+      toast.success(`미평점 뉴스 ${data.updatedCount}건이 0(무관)으로 설정되었습니다.`)
     },
   })
 
@@ -71,18 +93,18 @@ export default function NewsRating({ stockCode, stockName, className }: NewsRati
 
   const getRatingColor = (rating: number | undefined) => {
     if (rating === undefined || rating === null) return 'text-gray-400'
-    if (rating > 0) return 'text-green-600'
-    if (rating < 0) return 'text-red-600'
-    return 'text-gray-500'
+    if (rating > 0) return 'text-green-600 dark:text-green-400'
+    if (rating < 0) return 'text-red-600 dark:text-red-400'
+    return 'text-gray-500 dark:text-gray-400'
   }
 
   const getRatingBg = (rating: number | undefined) => {
-    if (rating === undefined || rating === null) return 'bg-gray-100'
-    if (rating > 5) return 'bg-green-100'
-    if (rating > 0) return 'bg-green-50'
-    if (rating < -5) return 'bg-red-100'
-    if (rating < 0) return 'bg-red-50'
-    return 'bg-gray-50'
+    if (rating === undefined || rating === null) return 'bg-gray-100 dark:bg-gray-700'
+    if (rating > 5) return 'bg-green-100 dark:bg-green-900/30'
+    if (rating > 0) return 'bg-green-50 dark:bg-green-900/20'
+    if (rating < -5) return 'bg-red-100 dark:bg-red-900/30'
+    if (rating < 0) return 'bg-red-50 dark:bg-red-900/20'
+    return 'bg-gray-50 dark:bg-gray-700/50'
   }
 
   const getAutoSentimentIcon = (sentiment: string | undefined) => {
@@ -98,10 +120,10 @@ export default function NewsRating({ stockCode, stockName, className }: NewsRati
 
   if (isLoading) {
     return (
-      <div className={cn('bg-white rounded-xl p-6 shadow-sm', className)}>
+      <div className={cn('bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm', className)}>
         <div className="flex items-center gap-3">
           <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
-          <span className="text-gray-600">뉴스 데이터 로딩 중...</span>
+          <span className="text-gray-600 dark:text-gray-400">뉴스 데이터 로딩 중...</span>
         </div>
       </div>
     )
@@ -109,7 +131,7 @@ export default function NewsRating({ stockCode, stockName, className }: NewsRati
 
   if (error) {
     return (
-      <div className={cn('bg-white rounded-xl p-6 shadow-sm', className)}>
+      <div className={cn('bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm', className)}>
         <div className="flex items-center gap-3 text-red-500">
           <AlertCircle className="w-5 h-5" />
           <span>뉴스 데이터를 불러올 수 없습니다.</span>
@@ -124,7 +146,7 @@ export default function NewsRating({ stockCode, stockName, className }: NewsRati
   const unratedCount = news.length - ratedCount
 
   return (
-    <div className={cn('bg-white rounded-xl shadow-sm overflow-hidden', className)}>
+    <div className={cn('bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden', className)}>
       {/* 헤더 */}
       <div className="px-6 py-4 bg-gradient-to-r from-blue-500 to-indigo-500">
         <div className="flex items-center justify-between">
@@ -146,40 +168,53 @@ export default function NewsRating({ stockCode, stockName, className }: NewsRati
       </div>
 
       {/* 점수 요약 */}
-      <div className="px-6 py-4 bg-gray-50 border-b">
+      <div className="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b dark:border-gray-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-6">
             <div>
-              <div className="text-sm text-gray-500">감정 점수</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">감정 점수</div>
               <div className="text-2xl font-bold text-blue-600">
                 {sentimentScore.score.toFixed(1)}<span className="text-sm text-gray-400">/20</span>
               </div>
             </div>
-            <div className="h-10 border-l border-gray-200" />
+            <div className="h-10 border-l border-gray-200 dark:border-gray-700" />
             <div>
-              <div className="text-sm text-gray-500">평균 평점</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">평균 평점</div>
               <div className={cn('text-xl font-semibold', getRatingColor(sentimentScore.avg_rating))}>
                 {sentimentScore.avg_rating > 0 ? '+' : ''}{sentimentScore.avg_rating.toFixed(1)}
               </div>
             </div>
           </div>
           <div className="flex items-center gap-4 text-sm">
+            {unratedCount > 0 && (
+              <button
+                onClick={() => {
+                  if (confirm(`미평점 뉴스 ${unratedCount}건을 모두 0(무관)으로 설정하시겠습니까?`))
+                    rateAllMutation.mutate(0)
+                }}
+                disabled={rateAllMutation.isPending}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 rounded-lg text-gray-700 dark:text-gray-300 transition-colors disabled:opacity-50"
+              >
+                <CheckSquare className="w-4 h-4" />
+                <span>{rateAllMutation.isPending ? '처리 중...' : '미평점 전체 0(무관) 설정'}</span>
+              </button>
+            )}
             <div className="flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4 text-green-500" />
-              <span className="text-gray-600">평점 완료: {ratedCount}건</span>
+              <span className="text-gray-600 dark:text-gray-400">평점 완료: {ratedCount}건</span>
             </div>
             <div className="flex items-center gap-1.5">
               <AlertCircle className="w-4 h-4 text-orange-500" />
-              <span className="text-gray-600">미완료: {unratedCount}건</span>
+              <span className="text-gray-600 dark:text-gray-400">미완료: {unratedCount}건</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* 뉴스 리스트 */}
-      <div className="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
+      <div className="divide-y divide-gray-100 dark:divide-gray-700 max-h-[600px] overflow-y-auto">
         {news.length === 0 ? (
-          <div className="px-6 py-12 text-center text-gray-500">
+          <div className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
             <p>수집된 뉴스가 없습니다.</p>
             <p className="text-sm mt-1">위의 '뉴스 수집' 버튼을 클릭하여 뉴스를 수집해주세요.</p>
           </div>
@@ -200,7 +235,7 @@ export default function NewsRating({ stockCode, stockName, className }: NewsRati
                     {getAutoSentimentIcon(item.auto_sentiment)}
                     <span className="text-xs text-gray-400 uppercase">{item.auto_impact}</span>
                     {item.press && (
-                      <span className="text-xs text-gray-500">{item.press}</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">{item.press}</span>
                     )}
                     {item.news_date && (
                       <span className="text-xs text-gray-400">{item.news_date}</span>
@@ -210,7 +245,7 @@ export default function NewsRating({ stockCode, stockName, className }: NewsRati
                     href={item.link || item.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-800 hover:text-blue-600 font-medium flex items-start gap-1"
+                    className="text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium flex items-start gap-1"
                   >
                     <span className="line-clamp-2">{item.title}</span>
                     <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
@@ -233,7 +268,7 @@ export default function NewsRating({ stockCode, stockName, className }: NewsRati
               <div className="mt-3">
                 <button
                   onClick={() => toggleExpand(item.id!)}
-                  className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
+                  className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 flex items-center gap-1"
                 >
                   {expandedNews.has(item.id!) ? (
                     <>
@@ -249,7 +284,7 @@ export default function NewsRating({ stockCode, stockName, className }: NewsRati
                 </button>
 
                 {expandedNews.has(item.id!) && (
-                  <div className="mt-3 pt-3 border-t border-gray-200">
+                  <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
                     <div className="flex flex-wrap gap-2">
                       {/* 부정적 */}
                       {[-10, -7, -5, -3].map((rating) => (
@@ -261,7 +296,7 @@ export default function NewsRating({ stockCode, stockName, className }: NewsRati
                             'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
                             item.rating === rating
                               ? 'bg-red-500 text-white'
-                              : 'bg-red-50 text-red-600 hover:bg-red-100'
+                              : 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30'
                           )}
                         >
                           {rating}
@@ -276,7 +311,7 @@ export default function NewsRating({ stockCode, stockName, className }: NewsRati
                           'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
                           item.rating === 0
                             ? 'bg-gray-500 text-white'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
                         )}
                       >
                         0 (무관)
@@ -292,14 +327,14 @@ export default function NewsRating({ stockCode, stockName, className }: NewsRati
                             'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
                             item.rating === rating
                               ? 'bg-green-500 text-white'
-                              : 'bg-green-50 text-green-600 hover:bg-green-100'
+                              : 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30'
                           )}
                         >
                           +{rating}
                         </button>
                       ))}
                     </div>
-                    <p className="mt-2 text-xs text-gray-400">
+                    <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
                       -10: 매우 부정 | 0: 무관 | +10: 매우 긍정
                     </p>
                   </div>

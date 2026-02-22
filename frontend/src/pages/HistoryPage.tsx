@@ -110,12 +110,12 @@ export default function HistoryPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">분석 히스토리</h1>
-          <p className="text-gray-500 mt-1">시간에 따른 분석 점수 변화를 확인하세요</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">분석 히스토리</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">시간에 따른 분석 점수 변화를 확인하세요</p>
         </div>
         <div className="flex items-center gap-3">
           {/* Period Selector */}
-          <div className="flex bg-gray-100 rounded-lg p-1">
+          <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
             {PERIOD_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
@@ -123,8 +123,8 @@ export default function HistoryPage() {
                 className={cn(
                   'px-3 py-1.5 text-sm rounded-md transition-colors',
                   period === opt.value
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
                 )}
               >
                 {opt.label}
@@ -135,24 +135,24 @@ export default function HistoryPage() {
       </div>
 
       {/* Portfolio Overview Chart */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="font-medium text-gray-900">포트폴리오 점수 추이</h3>
-            <p className="text-sm text-gray-500">VIP한국형가치투자 전체 종목 평균</p>
+            <h3 className="font-medium text-gray-900 dark:text-gray-100">포트폴리오 점수 추이</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">VIP한국형가치투자 전체 종목 평균</p>
           </div>
           <div className="flex items-center gap-4 text-sm">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-primary-500" />
-              <span className="text-gray-600">평균 점수</span>
+              <span className="text-gray-600 dark:text-gray-400">평균 점수</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-green-400" />
-              <span className="text-gray-600">최고 점수</span>
+              <span className="text-gray-600 dark:text-gray-400">최고 점수</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-red-400" />
-              <span className="text-gray-600">최저 점수</span>
+              <span className="text-gray-600 dark:text-gray-400">최저 점수</span>
             </div>
           </div>
         </div>
@@ -220,8 +220,8 @@ export default function HistoryPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Stock Selector */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-          <h3 className="font-medium text-gray-900 mb-4">종목 선택</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4">
+          <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-4">종목 선택</h3>
 
           {/* Search */}
           <div className="relative mb-4">
@@ -231,7 +231,7 @@ export default function HistoryPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="종목명 또는 코드..."
-              className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
             />
           </div>
 
@@ -244,14 +244,14 @@ export default function HistoryPage() {
                 className={cn(
                   'w-full px-3 py-2.5 text-left rounded-lg transition-colors',
                   selectedStock === stock.code
-                    ? 'bg-primary-50 text-primary-700'
-                    : 'hover:bg-gray-50 text-gray-700'
+                    ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700'
+                    : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
                 )}
               >
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">{stock.name}</p>
-                    <p className="text-xs text-gray-500">{stock.code}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{stock.code}</p>
                   </div>
                   {stock.analysis && (
                     <span
@@ -271,19 +271,19 @@ export default function HistoryPage() {
         </div>
 
         {/* History Chart */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
           {selectedStock ? (
             <>
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="font-medium text-gray-900">
+                  <h3 className="font-medium text-gray-900 dark:text-gray-100">
                     {allStocks.find((s) => s.code === selectedStock)?.name || selectedStock}
                   </h3>
-                  <p className="text-sm text-gray-500">{selectedStock}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{selectedStock}</p>
                 </div>
                 <button
                   onClick={() => refetchHistory()}
-                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+                  className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
                 >
                   <RefreshCw className="w-4 h-4" />
                 </button>
@@ -292,12 +292,12 @@ export default function HistoryPage() {
               {/* Stats Cards */}
               {stats && (
                 <div className="grid grid-cols-4 gap-4 mb-6">
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <p className="text-xs text-gray-500 mb-1">현재 점수</p>
-                    <p className="text-xl font-bold text-gray-900">{stats.current.toFixed(1)}</p>
+                  <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">현재 점수</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{stats.current.toFixed(1)}</p>
                   </div>
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <p className="text-xs text-gray-500 mb-1">기간 변화</p>
+                  <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">기간 변화</p>
                     <p
                       className={cn(
                         'text-xl font-bold',
@@ -308,13 +308,13 @@ export default function HistoryPage() {
                       {stats.change.toFixed(1)}
                     </p>
                   </div>
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <p className="text-xs text-gray-500 mb-1">평균</p>
-                    <p className="text-xl font-bold text-gray-900">{stats.avg.toFixed(1)}</p>
+                  <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">평균</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{stats.avg.toFixed(1)}</p>
                   </div>
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <p className="text-xs text-gray-500 mb-1">최고/최저</p>
-                    <p className="text-xl font-bold text-gray-900">
+                  <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">최고/최저</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-gray-100">
                       <span className="text-green-600">{stats.max.toFixed(1)}</span>
                       <span className="text-gray-400 mx-1">/</span>
                       <span className="text-red-600">{stats.min.toFixed(1)}</span>
@@ -367,34 +367,34 @@ export default function HistoryPage() {
                   </ResponsiveContainer>
                 </div>
               ) : (
-                <div className="h-64 flex items-center justify-center text-gray-500">
+                <div className="h-64 flex items-center justify-center text-gray-500 dark:text-gray-400">
                   데이터를 불러올 수 없습니다
                 </div>
               )}
 
               {/* History Table */}
               {historyData && historyData.length > 0 && (
-                <div className="mt-6 border-t border-gray-100 pt-6">
-                  <h4 className="text-sm font-medium text-gray-700 mb-3">상세 히스토리</h4>
+                <div className="mt-6 border-t border-gray-100 dark:border-gray-700 pt-6">
+                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">상세 히스토리</h4>
                   <div className="max-h-48 overflow-y-auto">
                     <table className="w-full text-sm">
                       <thead>
-                        <tr className="text-left text-gray-500 border-b border-gray-100">
+                        <tr className="text-left text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-700">
                           <th className="pb-2 font-medium">날짜</th>
                           <th className="pb-2 font-medium text-right">점수</th>
                           <th className="pb-2 font-medium text-right">변화</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-50">
+                      <tbody className="divide-y divide-gray-50 dark:divide-gray-700">
                         {historyData.slice().reverse().map((item, idx, arr) => {
                           const prevScore = arr[idx + 1]?.score || item.score
                           const change = item.score - prevScore
                           return (
                             <tr key={item.date}>
-                              <td className="py-2 text-gray-700">
+                              <td className="py-2 text-gray-700 dark:text-gray-300">
                                 {new Date(item.date).toLocaleDateString('ko-KR')}
                               </td>
-                              <td className="py-2 text-right font-medium text-gray-900">
+                              <td className="py-2 text-right font-medium text-gray-900 dark:text-gray-100">
                                 {item.score.toFixed(1)}
                               </td>
                               <td
@@ -416,8 +416,8 @@ export default function HistoryPage() {
               )}
             </>
           ) : (
-            <div className="h-64 flex flex-col items-center justify-center text-gray-500">
-              <Calendar className="w-12 h-12 text-gray-300 mb-4" />
+            <div className="h-64 flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
+              <Calendar className="w-12 h-12 text-gray-300 dark:text-gray-600 mb-4" />
               <p>왼쪽에서 종목을 선택해주세요</p>
             </div>
           )}

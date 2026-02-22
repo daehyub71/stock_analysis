@@ -200,3 +200,93 @@ export interface SortOption {
   field: 'totalScore' | 'name' | 'sector' | 'priceChangeRate'
   direction: 'asc' | 'desc'
 }
+
+// Portfolio Types
+export interface Portfolio {
+  id: number
+  name: string
+  source?: string
+  report_date?: string
+  created_at: string
+  stock_count?: number
+  total_amount?: number
+}
+
+export interface PortfolioStock {
+  stock_code: string
+  stock_name: string
+  sector?: string
+  weight: number
+  quantity?: number
+  amount?: number
+  total_score: number
+  grade: Grade
+  tech_total?: number
+  fund_total?: number
+  sent_total?: number
+}
+
+export interface PortfolioDetail extends Portfolio {
+  stocks: PortfolioStock[]
+  avg_score: number
+  sector_distribution?: Record<string, number>
+}
+
+export interface PortfolioScore {
+  portfolio_id: number
+  avg_score: number
+  weighted_score: number
+  max_score: number
+  min_score: number
+  stock_count: number
+}
+
+// Backtest Types
+export interface BacktestDailyData {
+  date: string
+  price: number
+  score: number
+  portfolioValue: number
+  position: 'holding' | 'cash'
+  shares: number
+}
+
+export interface BacktestTrade {
+  type: 'buy' | 'sell'
+  date: string
+  price: number
+  shares: number
+  score: number
+  portfolioValue: number
+  profit?: number
+  profitPct?: number
+}
+
+export interface BacktestMetrics {
+  totalReturn: number
+  annualizedReturn: number
+  maxDrawdown: number
+  sharpeRatio: number
+  winRate: number
+  tradeCount: number
+  finalValue: number
+  tradingDays: number
+}
+
+export interface BacktestResponse {
+  stockCode: string
+  stockName: string
+  params: {
+    startDate: string
+    endDate: string
+    initialCapital: number
+    buyThreshold: number
+    sellThreshold: number
+  }
+  dailyData: BacktestDailyData[]
+  trades: BacktestTrade[]
+  metrics: BacktestMetrics
+  benchmark: {
+    buyHoldReturn: number
+  }
+}

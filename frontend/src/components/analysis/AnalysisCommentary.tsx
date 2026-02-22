@@ -22,10 +22,10 @@ export default function AnalysisCommentary({ stockCode, className }: AnalysisCom
 
   if (isLoading) {
     return (
-      <div className={cn('bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-6', className)}>
+      <div className={cn('bg-gradient-to-br from-indigo-50 dark:from-indigo-950/50 to-purple-50 dark:to-purple-950/50 rounded-xl p-6', className)}>
         <div className="flex items-center gap-3">
           <Loader2 className="w-5 h-5 animate-spin text-indigo-500" />
-          <span className="text-gray-600">AI 분석 코멘트 생성 중...</span>
+          <span className="text-gray-600 dark:text-gray-400">AI 분석 코멘트 생성 중...</span>
         </div>
       </div>
     )
@@ -38,7 +38,7 @@ export default function AnalysisCommentary({ stockCode, className }: AnalysisCom
   const { commentary } = data
 
   return (
-    <div className={cn('bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl overflow-hidden', className)}>
+    <div className={cn('bg-gradient-to-br from-indigo-50 dark:from-indigo-950/50 to-purple-50 dark:to-purple-950/50 rounded-xl overflow-hidden', className)}>
       {/* 헤더 */}
       <div className="px-6 py-4 bg-gradient-to-r from-indigo-500 to-purple-500">
         <div className="flex items-center gap-2">
@@ -49,10 +49,10 @@ export default function AnalysisCommentary({ stockCode, className }: AnalysisCom
 
       {/* 요약 */}
       <div className="p-6">
-        <p className="text-gray-700 leading-relaxed">{commentary.summary}</p>
+        <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{commentary.summary}</p>
 
         {/* 투자 제안 */}
-        <div className="mt-4 p-4 bg-white/70 rounded-lg border border-indigo-100">
+        <div className="mt-4 p-4 bg-white/70 dark:bg-gray-800/70 rounded-lg border border-indigo-100 dark:border-indigo-800">
           <p className="text-sm font-medium text-indigo-700">{commentary.action_suggestion}</p>
         </div>
 
@@ -66,13 +66,13 @@ export default function AnalysisCommentary({ stockCode, className }: AnalysisCom
             </div>
             <ul className="space-y-1">
               {commentary.highlights.slice(0, expanded ? undefined : 2).map((item, idx) => (
-                <li key={idx} className="text-sm text-gray-600 flex items-start gap-1.5">
+                <li key={idx} className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-1.5">
                   <span className="text-green-500 mt-1">•</span>
                   <span>{item}</span>
                 </li>
               ))}
               {!expanded && commentary.highlights.length > 2 && (
-                <li className="text-xs text-gray-400">+{commentary.highlights.length - 2}개 더</li>
+                <li className="text-xs text-gray-400 dark:text-gray-500">+{commentary.highlights.length - 2}개 더</li>
               )}
             </ul>
           </div>
@@ -85,13 +85,13 @@ export default function AnalysisCommentary({ stockCode, className }: AnalysisCom
             </div>
             <ul className="space-y-1">
               {commentary.risks.slice(0, expanded ? undefined : 2).map((item, idx) => (
-                <li key={idx} className="text-sm text-gray-600 flex items-start gap-1.5">
+                <li key={idx} className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-1.5">
                   <span className="text-red-500 mt-1">•</span>
                   <span>{item}</span>
                 </li>
               ))}
               {!expanded && commentary.risks.length > 2 && (
-                <li className="text-xs text-gray-400">+{commentary.risks.length - 2}개 더</li>
+                <li className="text-xs text-gray-400 dark:text-gray-500">+{commentary.risks.length - 2}개 더</li>
               )}
             </ul>
           </div>
@@ -99,27 +99,27 @@ export default function AnalysisCommentary({ stockCode, className }: AnalysisCom
 
         {/* 상세 분석 (펼쳤을 때만) */}
         {expanded && (
-          <div className="mt-6 space-y-4 pt-4 border-t border-indigo-100">
+          <div className="mt-6 space-y-4 pt-4 border-t border-indigo-100 dark:border-indigo-800">
             {/* 기술분석 코멘트 */}
             <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-2">📊 기술분석</h4>
-              <p className="text-sm text-gray-600 bg-white/50 rounded-lg p-3">
+              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">📊 기술분석</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400 bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
                 {commentary.technical_comment}
               </p>
             </div>
 
             {/* 기본분석 코멘트 */}
             <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-2">📈 기본분석</h4>
-              <p className="text-sm text-gray-600 bg-white/50 rounded-lg p-3">
+              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">📈 기본분석</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400 bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
                 {commentary.fundamental_comment}
               </p>
             </div>
 
             {/* 감정분석 코멘트 */}
             <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-2">💬 감정분석</h4>
-              <p className="text-sm text-gray-600 bg-white/50 rounded-lg p-3">
+              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">💬 감정분석</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400 bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
                 {commentary.sentiment_comment}
               </p>
             </div>
@@ -129,7 +129,7 @@ export default function AnalysisCommentary({ stockCode, className }: AnalysisCom
         {/* 더보기/접기 버튼 */}
         <button
           onClick={() => setExpanded(!expanded)}
-          className="mt-4 w-full flex items-center justify-center gap-1 py-2 text-sm text-indigo-600 hover:text-indigo-800 transition-colors"
+          className="mt-4 w-full flex items-center justify-center gap-1 py-2 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors"
         >
           {expanded ? (
             <>

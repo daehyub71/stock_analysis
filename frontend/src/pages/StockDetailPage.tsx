@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowLeft, ExternalLink, TrendingUp, TrendingDown, RefreshCw, AlertTriangle, BarChart3, PieChart, Activity, HelpCircle } from 'lucide-react'
+import { ArrowLeft, ExternalLink, TrendingUp, TrendingDown, RefreshCw, AlertTriangle, BarChart3, PieChart, Activity, HelpCircle, Building2 } from 'lucide-react'
 import { stockApi, analysisApi } from '@/services/api'
 import { LoadingPage, ErrorDisplay } from '@/components/common'
 import { TotalScoreCard, ScoreCard } from '@/components/dashboard'
@@ -65,21 +65,21 @@ export default function StockDetailPage() {
         <div className="flex items-center gap-4">
           <Link
             to="/"
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-gray-900">{stock.name}</h1>
-              <span className="px-2 py-0.5 text-xs bg-gray-100 text-gray-600 rounded">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stock.name}</h1>
+              <span className="px-2 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded">
                 {stock.code}
               </span>
             </div>
             <div className="flex items-center gap-3 mt-1">
-              <span className="text-sm text-gray-500">{stock.sector || '업종 미분류'}</span>
-              <span className="text-gray-300">|</span>
-              <span className="text-sm text-gray-500">{stock.market}</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">{stock.sector || '업종 미분류'}</span>
+              <span className="text-gray-300 dark:text-gray-600">|</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">{stock.market}</span>
             </div>
           </div>
         </div>
@@ -87,7 +87,7 @@ export default function StockDetailPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => refetchAnalysis()}
-            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
+            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
           >
             <RefreshCw className="w-4 h-4" />
             새로고침
@@ -96,7 +96,7 @@ export default function StockDetailPage() {
             href={`https://finance.naver.com/item/main.naver?code=${stock.code}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
+            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
           >
             <ExternalLink className="w-4 h-4" />
             네이버 증권
@@ -105,20 +105,20 @@ export default function StockDetailPage() {
       </div>
 
       {/* Price Info */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-500 mb-1">현재가</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">현재가</p>
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold text-gray-900">
+              <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">
                 {stock.currentPrice ? formatNumber(stock.currentPrice) : '-'}
               </span>
-              <span className="text-gray-500">원</span>
+              <span className="text-gray-500 dark:text-gray-400">원</span>
             </div>
           </div>
           {stock.priceChangeRate !== undefined && (
             <div className="text-right">
-              <p className="text-sm text-gray-500 mb-1">등락률</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">등락률</p>
               <div className="flex items-center gap-2">
                 {stock.priceChangeRate > 0 ? (
                   <TrendingUp className="w-6 h-6 text-red-500" />
@@ -138,6 +138,9 @@ export default function StockDetailPage() {
           )}
         </div>
       </div>
+
+      {/* Company Overview */}
+      <CompanyOverview code={stock.code} />
 
       {/* Score Summary */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -179,8 +182,8 @@ export default function StockDetailPage() {
       <AnalysisCommentary stockCode={stock.code} stockName={stock.name} />
 
       {/* Analysis Details Tabs */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div className="border-b border-gray-200">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="border-b border-gray-200 dark:border-gray-700">
           <nav className="flex -mb-px">
             {(['기술분석', '기본분석', '감정분석'] as TabType[]).map((tab) => (
               <button
@@ -190,7 +193,7 @@ export default function StockDetailPage() {
                   'px-6 py-4 text-sm font-medium border-b-2 transition-colors flex items-center gap-2',
                   activeTab === tab
                     ? 'border-primary-600 text-primary-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
                 )}
               >
                 {tab === '기술분석' && <BarChart3 className="w-4 h-4" />}
@@ -239,19 +242,19 @@ function DetailCard({ label, score, max, description }: DetailCardProps) {
   const percentage = (score / max) * 100
 
   return (
-    <div className="p-4 bg-gray-50 rounded-lg">
-      <p className="text-xs text-gray-500 mb-1">{label}</p>
+    <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{label}</p>
       <div className="flex items-baseline gap-1 mb-2">
-        <span className="text-lg font-bold text-gray-900">{score.toFixed(1)}</span>
+        <span className="text-lg font-bold text-gray-900 dark:text-gray-100">{score.toFixed(1)}</span>
         <span className="text-xs text-gray-400">/ {max}</span>
       </div>
-      <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden mb-2">
+      <div className="h-1.5 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden mb-2">
         <div
           className="h-full bg-primary-500 rounded-full"
           style={{ width: `${percentage}%` }}
         />
       </div>
-      <p className="text-xs text-gray-500 truncate" title={description}>
+      <p className="text-xs text-gray-500 dark:text-gray-400 truncate" title={description}>
         {description}
       </p>
     </div>
@@ -411,57 +414,57 @@ function TechnicalAnalysisTab({ details, stockCode }: TechnicalAnalysisTabProps)
       </div>
 
       {/* 기술지표 상세 */}
-      <div className="pt-6 border-t border-gray-100">
-        <h4 className="text-sm font-medium text-gray-700 mb-4">📊 기술지표 상세</h4>
+      <div className="pt-6 border-t border-gray-100 dark:border-gray-700">
+        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">📊 기술지표 상세</h4>
 
         {/* 이동평균 */}
-        <div className="bg-gray-50 rounded-lg p-4 mb-4">
+        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 mb-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center">
-              <h5 className="font-medium text-gray-800">이동평균선 (MA)</h5>
+              <h5 className="font-medium text-gray-800 dark:text-gray-200">이동평균선 (MA)</h5>
               <Tooltip content={INDICATOR_DESCRIPTIONS.ma} />
             </div>
             <span className={cn('text-sm font-medium', maStatus.color)}>{maStatus.status}</span>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="bg-white p-3 rounded">
-              <p className="text-xs text-gray-500">MA5 (5일)</p>
+            <div className="bg-white dark:bg-gray-800 p-3 rounded">
+              <p className="text-xs text-gray-500 dark:text-gray-400">MA5 (5일)</p>
               <p className="text-lg font-mono font-medium">{indicators.ma5 ? formatNumber(indicators.ma5) : '-'}</p>
             </div>
-            <div className="bg-white p-3 rounded">
-              <p className="text-xs text-gray-500">MA20 (20일)</p>
+            <div className="bg-white dark:bg-gray-800 p-3 rounded">
+              <p className="text-xs text-gray-500 dark:text-gray-400">MA20 (20일)</p>
               <p className="text-lg font-mono font-medium">{indicators.ma20 ? formatNumber(indicators.ma20) : '-'}</p>
             </div>
-            <div className="bg-white p-3 rounded">
-              <p className="text-xs text-gray-500">MA60 (60일)</p>
+            <div className="bg-white dark:bg-gray-800 p-3 rounded">
+              <p className="text-xs text-gray-500 dark:text-gray-400">MA60 (60일)</p>
               <p className="text-lg font-mono font-medium">{indicators.ma60 ? formatNumber(indicators.ma60) : '-'}</p>
             </div>
-            <div className="bg-white p-3 rounded">
-              <p className="text-xs text-gray-500">MA120 (120일)</p>
+            <div className="bg-white dark:bg-gray-800 p-3 rounded">
+              <p className="text-xs text-gray-500 dark:text-gray-400">MA120 (120일)</p>
               <p className="text-lg font-mono font-medium">{indicators.ma120 ? formatNumber(indicators.ma120) : '-'}</p>
             </div>
           </div>
         </div>
 
         {/* RSI */}
-        <div className="bg-gray-50 rounded-lg p-4 mb-4">
+        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 mb-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center">
-              <h5 className="font-medium text-gray-800">RSI (14)</h5>
+              <h5 className="font-medium text-gray-800 dark:text-gray-200">RSI (14)</h5>
               <Tooltip content={INDICATOR_DESCRIPTIONS.rsi} />
             </div>
             <span className={cn('text-sm font-medium', rsiStatus.color)}>{rsiStatus.status}</span>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex-1">
-              <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-3 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
                 <div className="h-full flex">
                   <div className="bg-green-400 w-[30%]" />
-                  <div className="bg-gray-300 w-[40%]" />
+                  <div className="bg-gray-300 dark:bg-gray-500 w-[40%]" />
                   <div className="bg-red-400 w-[30%]" />
                 </div>
               </div>
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
                 <span>0 (과매도)</span>
                 <span>50 (중립)</span>
                 <span>100 (과매수)</span>
@@ -474,25 +477,25 @@ function TechnicalAnalysisTab({ details, stockCode }: TechnicalAnalysisTabProps)
         </div>
 
         {/* MACD */}
-        <div className="bg-gray-50 rounded-lg p-4">
+        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center">
-              <h5 className="font-medium text-gray-800">MACD (12, 26, 9)</h5>
+              <h5 className="font-medium text-gray-800 dark:text-gray-200">MACD (12, 26, 9)</h5>
               <Tooltip content={INDICATOR_DESCRIPTIONS.macd} />
             </div>
             <span className={cn('text-sm font-medium', macdStatus.color)}>{macdStatus.status}</span>
           </div>
           <div className="grid grid-cols-3 gap-3">
-            <div className="bg-white p-3 rounded">
-              <p className="text-xs text-gray-500">MACD</p>
+            <div className="bg-white dark:bg-gray-800 p-3 rounded">
+              <p className="text-xs text-gray-500 dark:text-gray-400">MACD</p>
               <p className="text-lg font-mono font-medium">{indicators.macd?.toFixed(2) || '-'}</p>
             </div>
-            <div className="bg-white p-3 rounded">
-              <p className="text-xs text-gray-500">Signal</p>
+            <div className="bg-white dark:bg-gray-800 p-3 rounded">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Signal</p>
               <p className="text-lg font-mono font-medium">{indicators.macdSignal?.toFixed(2) || '-'}</p>
             </div>
-            <div className="bg-white p-3 rounded">
-              <p className="text-xs text-gray-500">Histogram</p>
+            <div className="bg-white dark:bg-gray-800 p-3 rounded">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Histogram</p>
               <p className={cn('text-lg font-mono font-medium', (indicators.macdHist || 0) >= 0 ? 'text-green-600' : 'text-red-600')}>
                 {indicators.macdHist?.toFixed(2) || '-'}
               </p>
@@ -537,11 +540,11 @@ function FundamentalAnalysisTab({ details }: FundamentalAnalysisTabProps) {
     <div className="space-y-6">
       {/* 적자 기업 경고 */}
       {isLossCompany && (
-        <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div className="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
           <AlertTriangle className="w-5 h-5 text-red-500" />
           <div>
-            <p className="font-medium text-red-800">적자 기업</p>
-            <p className="text-sm text-red-600">최근 실적에서 손실이 발생하여 일부 지표가 제한됩니다.</p>
+            <p className="font-medium text-red-800 dark:text-red-300">적자 기업</p>
+            <p className="text-sm text-red-600 dark:text-red-400">최근 실적에서 손실이 발생하여 일부 지표가 제한됩니다.</p>
           </div>
         </div>
       )}
@@ -560,26 +563,26 @@ function FundamentalAnalysisTab({ details }: FundamentalAnalysisTabProps) {
       </div>
 
       {/* 밸류에이션 지표 */}
-      <div className="pt-6 border-t border-gray-100">
-        <h4 className="text-sm font-medium text-gray-700 mb-4">📈 밸류에이션 지표</h4>
-        <div className="bg-gray-50 rounded-lg p-4">
+      <div className="pt-6 border-t border-gray-100 dark:border-gray-700">
+        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">📈 밸류에이션 지표</h4>
+        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
           <div className="grid grid-cols-3 gap-4">
-            <div className="bg-white p-4 rounded-lg">
-              <p className="text-xs text-gray-500 mb-1">PER (주가수익비율)</p>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">PER (주가수익비율)</p>
               <p className="text-2xl font-bold font-mono">{per !== null ? per.toFixed(1) : '-'}</p>
               <p className="text-xs text-gray-400 mt-1">
                 {per !== null && per > 0 ? (per < 10 ? '저평가' : per > 20 ? '고평가' : '적정') : '-'}
               </p>
             </div>
-            <div className="bg-white p-4 rounded-lg">
-              <p className="text-xs text-gray-500 mb-1">PBR (주가순자산비율)</p>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">PBR (주가순자산비율)</p>
               <p className="text-2xl font-bold font-mono">{pbr !== null ? pbr.toFixed(2) : '-'}</p>
               <p className="text-xs text-gray-400 mt-1">
                 {pbr !== null && pbr > 0 ? (pbr < 1 ? '저평가' : pbr > 2 ? '고평가' : '적정') : '-'}
               </p>
             </div>
-            <div className="bg-white p-4 rounded-lg">
-              <p className="text-xs text-gray-500 mb-1">PSR (주가매출비율)</p>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">PSR (주가매출비율)</p>
               <p className="text-2xl font-bold font-mono">{psr !== null ? psr.toFixed(2) : '-'}</p>
               <p className="text-xs text-gray-400 mt-1">
                 {psr !== null && psr > 0 ? (psr < 1 ? '저평가' : psr > 3 ? '고평가' : '적정') : '-'}
@@ -590,19 +593,19 @@ function FundamentalAnalysisTab({ details }: FundamentalAnalysisTabProps) {
       </div>
 
       {/* 수익성 지표 */}
-      <div className="pt-6 border-t border-gray-100">
-        <h4 className="text-sm font-medium text-gray-700 mb-4">💰 수익성 지표</h4>
-        <div className="bg-gray-50 rounded-lg p-4">
+      <div className="pt-6 border-t border-gray-100 dark:border-gray-700">
+        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">💰 수익성 지표</h4>
+        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white p-4 rounded-lg">
-              <p className="text-xs text-gray-500 mb-1">ROE (자기자본이익률)</p>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">ROE (자기자본이익률)</p>
               <p className="text-2xl font-bold font-mono">{roe !== null ? `${roe.toFixed(1)}%` : '-'}</p>
               <p className="text-xs text-gray-400 mt-1">
                 {roe !== null ? (roe >= 15 ? '우수 (15%↑)' : roe >= 10 ? '양호 (10%↑)' : '저조') : '-'}
               </p>
             </div>
-            <div className="bg-white p-4 rounded-lg">
-              <p className="text-xs text-gray-500 mb-1">영업이익률</p>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">영업이익률</p>
               <p className="text-2xl font-bold font-mono">{opMargin !== null ? `${opMargin.toFixed(1)}%` : '-'}</p>
               <p className="text-xs text-gray-400 mt-1">
                 {opMargin !== null ? (opMargin >= 15 ? '우수 (15%↑)' : opMargin >= 8 ? '양호 (8%↑)' : '저조') : '-'}
@@ -613,18 +616,18 @@ function FundamentalAnalysisTab({ details }: FundamentalAnalysisTabProps) {
       </div>
 
       {/* 성장성 지표 */}
-      <div className="pt-6 border-t border-gray-100">
-        <h4 className="text-sm font-medium text-gray-700 mb-4">📊 성장성 지표</h4>
-        <div className="bg-gray-50 rounded-lg p-4">
+      <div className="pt-6 border-t border-gray-100 dark:border-gray-700">
+        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">📊 성장성 지표</h4>
+        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white p-4 rounded-lg">
-              <p className="text-xs text-gray-500 mb-1">매출성장률 (YoY)</p>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">매출성장률 (YoY)</p>
               <p className={cn('text-2xl font-bold font-mono', (revenueGrowth || 0) >= 0 ? 'text-green-600' : 'text-red-600')}>
                 {revenueGrowth !== null ? `${revenueGrowth > 0 ? '+' : ''}${revenueGrowth.toFixed(1)}%` : '-'}
               </p>
             </div>
-            <div className="bg-white p-4 rounded-lg">
-              <p className="text-xs text-gray-500 mb-1">영업이익성장률 (YoY)</p>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">영업이익성장률 (YoY)</p>
               <p className={cn('text-2xl font-bold font-mono', (opGrowth || 0) >= 0 ? 'text-green-600' : 'text-red-600')}>
                 {opGrowth !== null ? `${opGrowth > 0 ? '+' : ''}${opGrowth.toFixed(1)}%` : '-'}
               </p>
@@ -634,19 +637,19 @@ function FundamentalAnalysisTab({ details }: FundamentalAnalysisTabProps) {
       </div>
 
       {/* 안정성 지표 */}
-      <div className="pt-6 border-t border-gray-100">
-        <h4 className="text-sm font-medium text-gray-700 mb-4">🛡️ 안정성 지표</h4>
-        <div className="bg-gray-50 rounded-lg p-4">
+      <div className="pt-6 border-t border-gray-100 dark:border-gray-700">
+        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">🛡️ 안정성 지표</h4>
+        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white p-4 rounded-lg">
-              <p className="text-xs text-gray-500 mb-1">부채비율</p>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">부채비율</p>
               <p className="text-2xl font-bold font-mono">{debtRatio !== null ? `${debtRatio.toFixed(1)}%` : '-'}</p>
               <p className="text-xs text-gray-400 mt-1">
                 {debtRatio !== null ? (debtRatio <= 100 ? '안정 (100%↓)' : debtRatio <= 200 ? '보통' : '위험 (200%↑)') : '-'}
               </p>
             </div>
-            <div className="bg-white p-4 rounded-lg">
-              <p className="text-xs text-gray-500 mb-1">유동비율</p>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">유동비율</p>
               <p className="text-2xl font-bold font-mono">{currentRatio !== null ? `${currentRatio.toFixed(1)}%` : '-'}</p>
               <p className="text-xs text-gray-400 mt-1">
                 {currentRatio !== null ? (currentRatio >= 200 ? '안정 (200%↑)' : currentRatio >= 100 ? '보통' : '위험 (100%↓)') : '-'}
@@ -692,10 +695,10 @@ function SentimentAnalysisTab({ details, stockCode, stockName }: SentimentAnalys
   const getTotalSentiment = () => {
     const max = 20
 
-    if (totalScore >= max * 0.7) return { status: '매우 긍정적', color: 'text-green-600', bg: 'bg-green-100' }
-    if (totalScore >= max * 0.5) return { status: '긍정적', color: 'text-green-500', bg: 'bg-green-50' }
-    if (totalScore >= max * 0.3) return { status: '중립', color: 'text-gray-600', bg: 'bg-gray-100' }
-    return { status: '부정적', color: 'text-red-600', bg: 'bg-red-50' }
+    if (totalScore >= max * 0.7) return { status: '매우 긍정적', color: 'text-green-600', bg: 'bg-green-100 dark:bg-green-900/30' }
+    if (totalScore >= max * 0.5) return { status: '긍정적', color: 'text-green-500', bg: 'bg-green-50 dark:bg-green-900/20' }
+    if (totalScore >= max * 0.3) return { status: '중립', color: 'text-gray-600 dark:text-gray-400', bg: 'bg-gray-100 dark:bg-gray-700' }
+    return { status: '부정적', color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-900/30' }
   }
 
   const sentimentStatus = getTotalSentiment()
@@ -707,17 +710,17 @@ function SentimentAnalysisTab({ details, stockCode, stockName }: SentimentAnalys
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <p className="text-sm text-gray-500">현재 시장 감정</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">현재 시장 감정</p>
               <span className={cn(
                 'px-2 py-0.5 text-xs rounded-full font-medium',
-                isManual ? 'bg-blue-100 text-blue-700' : 'bg-gray-200 text-gray-600'
+                isManual ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-400'
               )}>
                 {isManual ? '수동 평점' : '자동 분석'}
               </span>
             </div>
             <p className={cn('text-2xl font-bold', sentimentStatus.color)}>{sentimentStatus.status}</p>
             {isManual && manualRating && (
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                 평균 평점: <span className={cn('font-medium', manualRating.avgRating >= 0 ? 'text-green-600' : 'text-red-600')}>
                   {manualRating.avgRating > 0 ? '+' : ''}{manualRating.avgRating.toFixed(1)}
                 </span>
@@ -726,12 +729,12 @@ function SentimentAnalysisTab({ details, stockCode, stockName }: SentimentAnalys
             )}
           </div>
           <div className="text-right">
-            <p className="text-sm text-gray-500 mb-1">감정분석 점수</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">감정분석 점수</p>
             <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-bold text-gray-900">
+              <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {totalScore.toFixed(1)}
               </span>
-              <span className="text-sm text-gray-500">/ 20</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">/ 20</span>
             </div>
           </div>
         </div>
@@ -739,11 +742,11 @@ function SentimentAnalysisTab({ details, stockCode, stockName }: SentimentAnalys
 
       {/* 수동 평점 사용 안내 */}
       {isManual && (
-        <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="flex items-start gap-3 p-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg">
           <Activity className="w-5 h-5 text-blue-500 mt-0.5" />
           <div>
-            <p className="font-medium text-blue-800">수동 평점이 적용되었습니다</p>
-            <p className="text-sm text-blue-600 mt-1">
+            <p className="font-medium text-blue-800 dark:text-blue-300">수동 평점이 적용되었습니다</p>
+            <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
               {manualRating?.ratedCount || 0}건의 뉴스 평점을 기반으로 감정분석 점수가 계산되었습니다.
               자동 분석 대신 직접 평가한 점수가 총점에 반영됩니다.
             </p>
@@ -753,11 +756,11 @@ function SentimentAnalysisTab({ details, stockCode, stockName }: SentimentAnalys
 
       {/* 점수 카드 - 수동일 때는 하나의 카드만, 자동일 때는 3개 */}
       {isManual ? (
-        <div className="bg-gray-50 rounded-lg p-4">
+        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-700">수동 뉴스 평점 기반 점수</p>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">수동 뉴스 평점 기반 점수</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 평점 범위 -10~+10 → 점수 범위 0~20점으로 변환
               </p>
             </div>
@@ -782,16 +785,68 @@ function SentimentAnalysisTab({ details, stockCode, stockName }: SentimentAnalys
       )}
 
       {/* 수동 뉴스 평점 섹션 */}
-      <div className="pt-6 border-t border-gray-100">
+      <div className="pt-6 border-t border-gray-100 dark:border-gray-700">
         <div className="mb-4">
-          <h4 className="text-lg font-semibold text-gray-800">📰 뉴스 평점 관리</h4>
-          <p className="text-sm text-gray-500 mt-1">
+          <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-200">📰 뉴스 평점 관리</h4>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             뉴스를 직접 확인하고 -10(매우 부정)부터 +10(매우 긍정)까지 평점을 부여하세요.
             {!isManual && ' 평점을 입력하면 자동분석 대신 수동 점수가 총점에 반영됩니다.'}
           </p>
         </div>
         <NewsRating stockCode={stockCode} stockName={stockName} />
       </div>
+    </div>
+  )
+}
+
+
+// Company Overview Component
+function CompanyOverview({ code }: { code: string }) {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['companyOverview', code],
+    queryFn: () => stockApi.getCompanyOverview(code),
+    enabled: !!code,
+    staleTime: 1000 * 60 * 30, // 30분 캐시
+    retry: 1,
+  })
+
+  if (isLoading) {
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="flex items-center gap-2 mb-3">
+          <Building2 className="w-5 h-5 text-blue-500" />
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">기업개요</h3>
+        </div>
+        <div className="space-y-2">
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-full" />
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-5/6" />
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-4/6" />
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !data?.overview?.length) {
+    return null
+  }
+
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <Building2 className="w-5 h-5 text-blue-500" />
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">기업개요</h3>
+        </div>
+        <span className="text-xs text-gray-400 dark:text-gray-500">출처: 네이버 증권 (에프앤가이드)</span>
+      </div>
+      <ul className="space-y-2">
+        {data.overview.map((item, index) => (
+          <li key={index} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-400 dark:bg-blue-500 flex-shrink-0" />
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }

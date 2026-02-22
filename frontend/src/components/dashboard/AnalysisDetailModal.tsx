@@ -49,12 +49,12 @@ export default function AnalysisDetailModal({ isOpen, onClose, stockCode, stockN
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       onClick={handleBackdropClick}
     >
-      <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold text-gray-900">{stockName}</h2>
-            <span className="px-2 py-0.5 text-xs bg-gray-100 text-gray-600 rounded">{stockCode}</span>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">{stockName}</h2>
+            <span className="px-2 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded">{stockCode}</span>
             {analysis && (
               <span className={cn(
                 'px-2 py-0.5 text-sm font-bold rounded',
@@ -70,13 +70,13 @@ export default function AnalysisDetailModal({ isOpen, onClose, stockCode, stockN
               href={`https://finance.naver.com/item/main.naver?code=${stockCode}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
             >
               <ExternalLink className="w-5 h-5" />
             </a>
             <button
               onClick={onClose}
-              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
             >
               <X className="w-5 h-5" />
             </button>
@@ -100,7 +100,7 @@ export default function AnalysisDetailModal({ isOpen, onClose, stockCode, stockN
         {!loading && !error && analysis && (
           <>
             {/* Score Summary */}
-            <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
               <div className="grid grid-cols-3 gap-4">
                 <ScoreSummaryItem
                   label="기술분석"
@@ -124,7 +124,7 @@ export default function AnalysisDetailModal({ isOpen, onClose, stockCode, stockN
             </div>
 
             {/* Tabs */}
-            <div className="border-b border-gray-200">
+            <div className="border-b border-gray-200 dark:border-gray-700">
               <nav className="flex px-6">
                 {(['기술분석', '기본분석', '감정분석'] as TabType[]).map((tab) => (
                   <button
@@ -134,7 +134,7 @@ export default function AnalysisDetailModal({ isOpen, onClose, stockCode, stockN
                       'px-4 py-3 text-sm font-medium border-b-2 transition-colors flex items-center gap-2',
                       activeTab === tab
                         ? 'border-primary-600 text-primary-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                        : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                     )}
                   >
                     {tab === '기술분석' && <BarChart3 className="w-4 h-4" />}
@@ -181,15 +181,15 @@ function ScoreSummaryItem({ label, score, max, color, isPenalty }: ScoreSummaryI
     : (score / max) * 100
 
   return (
-    <div className="bg-white p-3 rounded-lg">
-      <p className="text-xs text-gray-500 mb-1">{label}</p>
+    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{label}</p>
       <div className="flex items-baseline gap-1">
-        <span className={cn('text-lg font-bold', isPenalty ? 'text-red-600' : 'text-gray-900')}>
+        <span className={cn('text-lg font-bold', isPenalty ? 'text-red-600' : 'text-gray-900 dark:text-gray-100')}>
           {isPenalty && score < 0 ? '' : ''}{score.toFixed(1)}
         </span>
         <span className="text-xs text-gray-400">/ {max}</span>
       </div>
-      <div className="h-1.5 bg-gray-200 rounded-full mt-2 overflow-hidden">
+      <div className="h-1.5 bg-gray-200 dark:bg-gray-600 rounded-full mt-2 overflow-hidden">
         <div
           className={cn('h-full rounded-full', colorClasses[color])}
           style={{ width: `${Math.min(percentage, 100)}%` }}
@@ -209,14 +209,14 @@ interface MetricCardProps {
 
 function MetricCard({ label, value, subLabel, highlight }: MetricCardProps) {
   return (
-    <div className="bg-gray-50 p-3 rounded-lg">
-      <p className="text-xs text-gray-500 mb-1">{label}</p>
+    <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg">
+      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{label}</p>
       <p className={cn(
         'text-xl font-bold font-mono',
         highlight === 'positive' && 'text-green-600',
         highlight === 'negative' && 'text-red-600',
-        highlight === 'neutral' && 'text-gray-900',
-        !highlight && 'text-gray-900'
+        highlight === 'neutral' && 'text-gray-900 dark:text-gray-100',
+        !highlight && 'text-gray-900 dark:text-gray-100'
       )}>
         {value !== null && value !== undefined ? value : '-'}
       </p>
@@ -249,11 +249,11 @@ function TechnicalTab({ details, stockCode }: TechnicalTabProps) {
 
       {/* Score Details */}
       <div>
-        <h4 className="text-sm font-medium text-gray-700 mb-3">📊 점수 상세</h4>
+        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">📊 점수 상세</h4>
         <div className="grid grid-cols-5 gap-3">
           {Object.entries(items).map(([key, item]: [string, any]) => (
-            <div key={key} className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-xs text-gray-500 mb-1">{getLabel(key)}</p>
+            <div key={key} className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{getLabel(key)}</p>
               <p className="text-lg font-bold">{item.score?.toFixed(1) || 0} <span className="text-xs text-gray-400">/ {item.max || 0}</span></p>
               <p className="text-xs text-gray-400 mt-1 truncate">{item.description || ''}</p>
             </div>
@@ -263,7 +263,7 @@ function TechnicalTab({ details, stockCode }: TechnicalTabProps) {
 
       {/* Indicators */}
       <div>
-        <h4 className="text-sm font-medium text-gray-700 mb-3">📈 기술지표</h4>
+        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">📈 기술지표</h4>
         <div className="grid grid-cols-4 gap-3">
           <MetricCard label="MA5" value={indicators.ma5 ? formatNumber(indicators.ma5) : null} />
           <MetricCard label="MA20" value={indicators.ma20 ? formatNumber(indicators.ma20) : null} />
@@ -306,19 +306,19 @@ function FundamentalTab({ details }: { details: any }) {
     <div className="space-y-6">
       {/* Score Details */}
       <div>
-        <h4 className="text-sm font-medium text-gray-700 mb-3">📊 점수 상세</h4>
+        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">📊 점수 상세</h4>
         <div className="grid grid-cols-5 gap-3">
           {Object.entries(items).slice(0, 5).map(([key, item]: [string, any]) => (
-            <div key={key} className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-xs text-gray-500 mb-1">{getLabel(key)}</p>
+            <div key={key} className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{getLabel(key)}</p>
               <p className="text-lg font-bold">{item.score?.toFixed(1) || 0} <span className="text-xs text-gray-400">/ {item.max || 0}</span></p>
             </div>
           ))}
         </div>
         <div className="grid grid-cols-4 gap-3 mt-3">
           {Object.entries(items).slice(5).map(([key, item]: [string, any]) => (
-            <div key={key} className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-xs text-gray-500 mb-1">{getLabel(key)}</p>
+            <div key={key} className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{getLabel(key)}</p>
               <p className="text-lg font-bold">{item.score?.toFixed(1) || 0} <span className="text-xs text-gray-400">/ {item.max || 0}</span></p>
             </div>
           ))}
@@ -327,7 +327,7 @@ function FundamentalTab({ details }: { details: any }) {
 
       {/* Valuation */}
       <div>
-        <h4 className="text-sm font-medium text-gray-700 mb-3">📈 밸류에이션 지표</h4>
+        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">📈 밸류에이션 지표</h4>
         <div className="grid grid-cols-3 gap-3">
           <MetricCard
             label="PER (주가수익비율)"
@@ -352,7 +352,7 @@ function FundamentalTab({ details }: { details: any }) {
       {/* Profitability & Growth */}
       <div className="grid grid-cols-2 gap-6">
         <div>
-          <h4 className="text-sm font-medium text-gray-700 mb-3">💰 수익성</h4>
+          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">💰 수익성</h4>
           <div className="grid grid-cols-2 gap-3">
             <MetricCard
               label="ROE"
@@ -367,7 +367,7 @@ function FundamentalTab({ details }: { details: any }) {
           </div>
         </div>
         <div>
-          <h4 className="text-sm font-medium text-gray-700 mb-3">📊 성장성</h4>
+          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">📊 성장성</h4>
           <div className="grid grid-cols-2 gap-3">
             <MetricCard
               label="매출성장률"
@@ -385,7 +385,7 @@ function FundamentalTab({ details }: { details: any }) {
 
       {/* Stability */}
       <div>
-        <h4 className="text-sm font-medium text-gray-700 mb-3">🛡️ 안정성</h4>
+        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">🛡️ 안정성</h4>
         <div className="grid grid-cols-2 gap-3">
           <MetricCard
             label="부채비율"
@@ -414,15 +414,15 @@ function SentimentTab({ details }: { details: any }) {
     <div className="space-y-6">
       <div className="grid grid-cols-3 gap-3">
         {Object.entries(items).map(([key, item]: [string, any]) => (
-          <div key={key} className="bg-gray-50 p-4 rounded-lg">
-            <p className="text-xs text-gray-500 mb-1">{getLabel(key)}</p>
+          <div key={key} className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{getLabel(key)}</p>
             <p className="text-2xl font-bold">{item.score?.toFixed(1) || 0} <span className="text-xs text-gray-400">/ {item.max || 0}</span></p>
             <p className="text-xs text-gray-400 mt-1">{item.description || ''}</p>
           </div>
         ))}
       </div>
-      <div className="bg-blue-50 p-4 rounded-lg">
-        <p className="text-sm text-blue-800">분석 뉴스: <strong>{newsCount}건</strong></p>
+      <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg">
+        <p className="text-sm text-blue-800 dark:text-blue-300">분석 뉴스: <strong>{newsCount}건</strong></p>
       </div>
     </div>
   )

@@ -27,17 +27,17 @@ export default function FilterPanel({ sectors }: FilterPanelProps) {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="flex items-center gap-2 text-gray-700 hover:text-gray-900"
+          className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
         >
           <Filter className="w-5 h-5" />
           <span className="font-medium">필터</span>
           {hasActiveFilters && (
-            <span className="px-1.5 py-0.5 text-xs bg-primary-100 text-primary-700 rounded">
+            <span className="px-1.5 py-0.5 text-xs bg-primary-100 dark:bg-primary-900/40 text-primary-700 rounded">
               적용됨
             </span>
           )}
@@ -48,7 +48,7 @@ export default function FilterPanel({ sectors }: FilterPanelProps) {
         {hasActiveFilters && (
           <button
             onClick={resetFilter}
-            className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
+            className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
           >
             <X className="w-4 h-4" />
             초기화
@@ -58,10 +58,10 @@ export default function FilterPanel({ sectors }: FilterPanelProps) {
 
       {/* Filters */}
       {isExpanded && (
-        <div className="space-y-4 pt-4 border-t border-gray-100">
+        <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-700">
           {/* Market Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">시장</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">시장</label>
             <div className="flex gap-2">
               {(['all', 'KOSPI', 'KOSDAQ'] as const).map((market) => (
                 <button
@@ -71,7 +71,7 @@ export default function FilterPanel({ sectors }: FilterPanelProps) {
                     'px-3 py-1.5 text-sm rounded-lg transition-colors',
                     filter.market === market
                       ? 'bg-primary-100 text-primary-700'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
                   )}
                 >
                   {market === 'all' ? '전체' : market}
@@ -82,12 +82,12 @@ export default function FilterPanel({ sectors }: FilterPanelProps) {
 
           {/* Sector Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">업종</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">업종</label>
             <select
               value={filter.sector || ''}
               onChange={(e) => setFilter({ sector: e.target.value || undefined })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm
-                       focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm
+                       dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             >
               <option value="">전체 업종</option>
               {sectors.map((sector) => (
@@ -100,7 +100,7 @@ export default function FilterPanel({ sectors }: FilterPanelProps) {
 
           {/* Grade Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">등급</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">등급</label>
             <div className="flex flex-wrap gap-2">
               {GRADES.map((grade) => (
                 <button
@@ -110,7 +110,7 @@ export default function FilterPanel({ sectors }: FilterPanelProps) {
                     'px-3 py-1.5 text-sm rounded-lg transition-colors',
                     filter.grades?.includes(grade)
                       ? 'bg-primary-100 text-primary-700'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
                   )}
                 >
                   {grade}
@@ -121,7 +121,7 @@ export default function FilterPanel({ sectors }: FilterPanelProps) {
 
           {/* Score Range */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">점수 범위</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">점수 범위</label>
             <div className="flex items-center gap-2">
               <input
                 type="number"
@@ -132,8 +132,8 @@ export default function FilterPanel({ sectors }: FilterPanelProps) {
                 onChange={(e) =>
                   setFilter({ minScore: e.target.value ? Number(e.target.value) : undefined })
                 }
-                className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-sm
-                         focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm
+                         dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
               <span className="text-gray-400">~</span>
               <input
@@ -145,8 +145,8 @@ export default function FilterPanel({ sectors }: FilterPanelProps) {
                 onChange={(e) =>
                   setFilter({ maxScore: e.target.value ? Number(e.target.value) : undefined })
                 }
-                className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-sm
-                         focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm
+                         dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -158,10 +158,10 @@ export default function FilterPanel({ sectors }: FilterPanelProps) {
               id="excludeLoss"
               checked={filter.excludeLoss || false}
               onChange={(e) => setFilter({ excludeLoss: e.target.checked })}
-              className="w-4 h-4 text-primary-600 border-gray-300 rounded
-                       focus:ring-primary-500"
+              className="w-4 h-4 text-primary-600 border-gray-300 dark:border-gray-600 rounded
+                       dark:bg-gray-700 focus:ring-primary-500"
             />
-            <label htmlFor="excludeLoss" className="text-sm text-gray-700">
+            <label htmlFor="excludeLoss" className="text-sm text-gray-700 dark:text-gray-300">
               적자 기업 제외
             </label>
           </div>

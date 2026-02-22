@@ -19,4 +19,16 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          charts: ['recharts', 'lightweight-charts'],
+          query: ['@tanstack/react-query', 'axios'],
+          ui: ['lucide-react', 'sonner', 'zustand'],
+        },
+      },
+    },
+  },
 })

@@ -111,8 +111,8 @@ export default function RankingPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">순위</h1>
-          <p className="text-gray-500 mt-1">분석 점수 기준 종목 순위</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">순위</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">분석 점수 기준 종목 순위</p>
         </div>
       </div>
 
@@ -127,7 +127,7 @@ export default function RankingPage() {
                 'px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors',
                 category === cat
                   ? 'bg-primary-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
               )}
             >
               {getCategoryLabel(cat)}
@@ -145,10 +145,10 @@ export default function RankingPage() {
             className={cn(
               'relative p-6 rounded-xl border-2 transition-transform hover:scale-105',
               idx === 0
-                ? 'bg-gradient-to-br from-yellow-50 to-amber-50 border-yellow-300'
+                ? 'bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-900/30 dark:to-amber-900/30 border-yellow-300 dark:border-yellow-700'
                 : idx === 1
-                ? 'bg-gradient-to-br from-gray-50 to-slate-100 border-gray-300'
-                : 'bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200'
+                ? 'bg-gradient-to-br from-gray-50 to-slate-100 dark:from-gray-700/50 dark:to-slate-800 border-gray-300 dark:border-gray-600'
+                : 'bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/30 dark:to-amber-900/30 border-orange-200 dark:border-orange-800'
             )}
           >
             {/* Rank Badge */}
@@ -165,8 +165,8 @@ export default function RankingPage() {
             <div className="mt-2">
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <h3 className="font-bold text-gray-900">{stock.name}</h3>
-                  <p className="text-sm text-gray-500">{stock.code}</p>
+                  <h3 className="font-bold text-gray-900 dark:text-gray-100">{stock.name}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{stock.code}</p>
                 </div>
                 {stock.analysis && (
                   <span
@@ -183,8 +183,8 @@ export default function RankingPage() {
 
               <div className="flex items-end justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">{getCategoryLabel(category)}</p>
-                  <p className="text-3xl font-bold text-gray-900">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{getCategoryLabel(category)}</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
                     {category === 'momentum' ? (
                       <span className={getPriceChangeColor(getScore(stock, category))}>
                         {formatPercent(getScore(stock, category))}
@@ -209,35 +209,35 @@ export default function RankingPage() {
       </div>
 
       {/* Ranking Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
         <table className="w-full">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase w-16">
+            <tr className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase w-16">
                 순위
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                 종목
               </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                 현재가
               </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                 등락률
               </th>
-              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                 등급
               </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                 {getCategoryLabel(category)}
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
             {rest.map((stock, idx) => (
-              <tr key={stock.code} className="hover:bg-gray-50 transition-colors">
+              <tr key={stock.code} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 <td className="px-4 py-3">
-                  <span className="w-8 h-8 inline-flex items-center justify-center bg-gray-100 rounded-full text-sm font-medium text-gray-600">
+                  <span className="w-8 h-8 inline-flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-full text-sm font-medium text-gray-600 dark:text-gray-400">
                     {idx + 4}
                   </span>
                 </td>
@@ -246,12 +246,12 @@ export default function RankingPage() {
                     to={`/stocks/${stock.code}`}
                     className="block hover:text-primary-600"
                   >
-                    <p className="font-medium text-gray-900">{stock.name}</p>
-                    <p className="text-xs text-gray-500">{stock.code}</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{stock.name}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{stock.code}</p>
                   </Link>
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <span className="font-mono text-gray-900">
+                  <span className="font-mono text-gray-900 dark:text-gray-100">
                     {stock.currentPrice ? formatNumber(stock.currentPrice) : '-'}
                   </span>
                 </td>
@@ -291,7 +291,7 @@ export default function RankingPage() {
                       {formatPercent(getScore(stock, category))}
                     </span>
                   ) : (
-                    <span className="font-bold text-gray-900">
+                    <span className="font-bold text-gray-900 dark:text-gray-100">
                       {getScore(stock, category).toFixed(1)}
                       <span className="text-gray-400 font-normal">
                         /{getMaxScore(category)}

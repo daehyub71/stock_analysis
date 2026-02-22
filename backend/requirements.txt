@@ -39,5 +39,8 @@ pytest>=8.0.0
 pytest-asyncio>=0.23.4
 httpx>=0.26.0
 
+# Email
+aiosmtplib>=3.0.0
+
 # Utilities
 python-dateutil>=2.8.2

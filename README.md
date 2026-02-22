@@ -361,11 +361,17 @@ Manual news rating system that allows users to override automatic sentiment anal
   - [x] Stock comparison
   - [x] Analysis history
 
-- [ ] Phase 2: Week 6-8
-  - [ ] Backtesting module
-  - [ ] Alert system
-  - [ ] Dark mode
-  - [ ] Portfolio simulation
+- [x] Phase 2: Week 6
+  - [x] Backtesting module (technical score-based buy/sell simulation)
+
+- [x] Phase 2: Week 7
+  - [x] Alert system (toast, browser notification, email)
+  - [x] Dark mode (Light/Dark/System)
+
+- [x] Phase 2: Week 8
+  - [x] Portfolio simulation (CRUD, weight adjustment, scoring)
+  - [x] Performance optimization (code splitting, bundle optimization)
+  - [x] Docker deployment (Dockerfile, docker-compose, nginx)
 
 ## Contributing
 

@@ -38,10 +38,10 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="flex flex-col items-center justify-center min-h-[400px] p-8">
           <AlertCircle className="w-16 h-16 text-red-500 mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
             오류가 발생했습니다
           </h2>
-          <p className="text-gray-500 text-center mb-6 max-w-md">
+          <p className="text-gray-500 dark:text-gray-400 text-center mb-6 max-w-md">
             {this.state.error?.message || '알 수 없는 오류가 발생했습니다.'}
           </p>
           <button
@@ -70,17 +70,17 @@ export function ErrorDisplay({ error, onRetry }: ErrorDisplayProps) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[200px] p-6">
       <AlertCircle className="w-12 h-12 text-red-500 mb-3" />
-      <h3 className="text-lg font-medium text-gray-900 mb-1">
+      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">
         데이터를 불러올 수 없습니다
       </h3>
-      <p className="text-sm text-gray-500 text-center mb-4">
+      <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-4">
         {error.message}
       </p>
       {onRetry && (
         <button
           onClick={onRetry}
-          className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-100 text-gray-700
-                   rounded-lg hover:bg-gray-200 transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300
+                   rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
         >
           <RefreshCw className="w-4 h-4" />
           다시 시도

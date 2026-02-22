@@ -199,6 +199,30 @@ async def get_stock(code: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.get("/{code}/overview")
+async def get_company_overview(code: str):
+    """종목 기업개요 조회 (네이버 증권 크롤링)"""
+    try:
+        from app.collectors.naver_finance import get_company_overview as crawl_overview
+
+        data = crawl_overview(code)
+        overview = data.get("overview", [])
+
+        if not overview:
+            raise HTTPException(status_code=404, detail=f"No overview data for: {code}")
+
+        stock = supabase_db.get_stock_by_code(code)
+        return {
+            "stockCode": code,
+            "stockName": stock.get("name", "") if stock else "",
+            "overview": overview,
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.get("/{code}/history")
 async def get_price_history(
     code: str,

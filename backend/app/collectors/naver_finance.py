@@ -361,6 +361,63 @@ def get_dividend_info(stock_code: str) -> dict:
     return result
 
 
+def get_company_overview(stock_code: str) -> dict:
+    """
+    기업개요 조회
+    - 네이버 증권 메인 페이지의 기업개요 섹션 크롤링
+
+    URL: https://finance.naver.com/item/main.naver?code=005810
+
+    Returns:
+        {"stock_code": "005810", "overview": ["bullet1", ...], "crawled_at": "..."}
+    """
+    url = f"https://finance.naver.com/item/main.naver?code={stock_code}"
+    soup = _fetch_page(url)
+
+    if not soup:
+        return {"stock_code": stock_code, "overview": []}
+
+    result = {
+        "stock_code": stock_code,
+        "overview": [],
+        "crawled_at": datetime.now().isoformat(),
+    }
+
+    try:
+        summary = soup.select_one("div#summary_info")
+        if summary:
+            paragraphs = [p.get_text(strip=True) for p in summary.select("p")]
+            result["overview"] = [p for p in paragraphs if p]
+    except Exception as e:
+        print(f"❌ 기업개요 파싱 실패 ({stock_code}): {e}")
+
+    return result
+
+
+def get_company_overview_batch(
+    stock_codes: list[str],
+    delay: float = 0.8,
+) -> dict[str, list[str]]:
+    """
+    여러 종목의 기업개요 일괄 수집
+
+    Returns:
+        종목코드 → 기업개요 리스트 딕셔너리
+    """
+    results = {}
+    total = len(stock_codes)
+
+    for i, code in enumerate(stock_codes, 1):
+        print(f"[{i}/{total}] {code} 기업개요 수집 중...")
+        data = get_company_overview(code)
+        results[code] = data.get("overview", [])
+
+        if i < total:
+            time.sleep(delay + random.uniform(0, 0.3))
+
+    return results
+
+
 def get_all_financial_data(stock_code: str) -> dict:
     """
     종합 재무 데이터 조회

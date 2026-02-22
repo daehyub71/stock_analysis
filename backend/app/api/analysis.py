@@ -78,24 +78,23 @@ async def get_analysis_history(
         if not stock:
             raise HTTPException(status_code=404, detail=f"Stock not found: {code}")
 
-        # TODO: 실제 히스토리 조회 구현
-        # 현재는 더미 데이터 반환
-        from datetime import timedelta
-        import random
+        stock_id = stock.get("id")
+        history_data = supabase_db.get_analysis_history(stock_id, days)
 
-        base_date = datetime.now()
-        history = []
-        base_score = 65
+        if not history_data:
+            return []
 
-        for i in range(days):
-            date = base_date - timedelta(days=i)
-            score = base_score + random.uniform(-5, 5)
-            history.append({
-                "date": date.strftime("%Y-%m-%d"),
-                "score": round(score, 1),
-            })
-
-        return sorted(history, key=lambda x: x["date"])
+        return [
+            {
+                "date": row.get("analysis_date", ""),
+                "score": round(row.get("total_score", 0), 1),
+                "techScore": round(row.get("tech_total", 0), 1),
+                "fundScore": round(row.get("fund_total", 0), 1),
+                "sentScore": round(row.get("sent_total", 0), 1),
+                "grade": row.get("grade", ""),
+            }
+            for row in history_data
+        ]
 
     except HTTPException:
         raise
@@ -719,6 +718,57 @@ async def collect_news(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.put("/{code}/news/rate-all")
+async def rate_all_news(
+    code: str,
+    rating: int = Query(..., ge=-10, le=10, description="일괄 평점 (-10 ~ +10)"),
+):
+    """
+    해당 종목의 미평점 뉴스를 일괄 평점 설정
+
+    rating=0: 전체 무관 처리
+    """
+    try:
+        stock = supabase_db.get_stock_by_code(code)
+        if not stock:
+            raise HTTPException(status_code=404, detail=f"Stock not found: {code}")
+
+        stock_id = stock.get("id")
+
+        # 미평점 뉴스 조회
+        client = supabase_db.get_client()
+        response = client.table("news_ratings_anal").select("id").eq(
+            "stock_id", stock_id
+        ).eq("is_rated", False).execute()
+
+        updated_count = 0
+        for item in (response.data or []):
+            supabase_db.update_news_rating(item["id"], rating)
+            updated_count += 1
+
+        # 업데이트된 감정 점수 계산
+        sentiment_score = supabase_db.calculate_sentiment_from_ratings(stock_id)
+
+        # 총점 자동 재계산 및 저장
+        analysis_result = calculate_stock_score(
+            stock_code=code,
+            stock_name=stock.get("name"),
+            save=True,
+        )
+
+        return {
+            "updatedCount": updated_count,
+            "rating": rating,
+            "sentimentScore": sentiment_score,
+            "totalScore": analysis_result["total_score"],
+            "grade": analysis_result["grade"],
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.put("/{code}/news/{news_id}/rate")
 async def update_news_rating(
     code: str,
@@ -745,10 +795,19 @@ async def update_news_rating(
         stock_id = stock.get("id")
         sentiment_score = supabase_db.calculate_sentiment_from_ratings(stock_id)
 
+        # 총점 자동 재계산 및 저장
+        analysis_result = calculate_stock_score(
+            stock_code=code,
+            stock_name=stock.get("name"),
+            save=True,
+        )
+
         return {
             "newsId": news_id,
             "rating": rating,
             "sentimentScore": sentiment_score,
+            "totalScore": analysis_result["total_score"],
+            "grade": analysis_result["grade"],
         }
     except HTTPException:
         raise

@@ -112,10 +112,13 @@ async def db_health_check():
 
 
 # === API Routers ===
-from app.api import stocks_router, analysis_router
+from app.api import stocks_router, analysis_router, backtest_router, alerts_router, portfolios_router
 
 app.include_router(stocks_router, prefix="/api/stocks", tags=["Stocks"])
 app.include_router(analysis_router, prefix="/api/analysis", tags=["Analysis"])
+app.include_router(backtest_router, prefix="/api/backtest", tags=["Backtest"])
+app.include_router(alerts_router, prefix="/api/alerts", tags=["Alerts"])
+app.include_router(portfolios_router, prefix="/api/portfolios", tags=["Portfolios"])
 
 
 if __name__ == "__main__":

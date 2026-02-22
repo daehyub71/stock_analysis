@@ -1,13 +1,17 @@
+import { useEffect, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { TrendingUp, TrendingDown, BarChart3 } from 'lucide-react'
-import { stockApi } from '@/services/api'
+import { toast } from 'sonner'
+import { stockApi, alertsApi } from '@/services/api'
 import { useStockStore } from '@/stores/useStockStore'
 import { StockTable, FilterPanel } from '@/components/dashboard'
 import { LoadingPage, ErrorDisplay } from '@/components/common'
+import { sendBrowserNotification } from '@/lib/notifications'
 import { cn, formatNumber } from '@/lib/utils'
 
 export default function Dashboard() {
   const { filter, sort, setSort, page, pageSize, searchQuery } = useStockStore()
+  const alertShown = useRef(false)
 
   // 종목 리스트 조회
   const { data, isLoading, error, refetch } = useQuery({
@@ -28,6 +32,26 @@ export default function Dashboard() {
     queryFn: () => stockApi.getSectors(),
   })
 
+  // 점수 변화 알림 (페이지 로드 시 1회)
+  const { data: alertData } = useQuery({
+    queryKey: ['scoreChanges'],
+    queryFn: () => alertsApi.getScoreChanges(5),
+    staleTime: 1000 * 60 * 5,
+  })
+
+  useEffect(() => {
+    if (alertData && alertData.count > 0 && !alertShown.current) {
+      alertShown.current = true
+      const upCount = alertData.changes.filter(c => c.change > 0).length
+      const downCount = alertData.changes.filter(c => c.change < 0).length
+      toast.info(`점수 변화 알림: ${alertData.count}개 종목 (상승 ${upCount}, 하락 ${downCount})`)
+      sendBrowserNotification(
+        '종목분석 점수 변화',
+        `${alertData.count}개 종목의 점수가 변화했습니다. (상승 ${upCount}, 하락 ${downCount})`
+      )
+    }
+  }, [alertData])
+
   if (error) {
     return <ErrorDisplay error={error as Error} onRetry={() => refetch()} />
   }
@@ -47,12 +71,12 @@ export default function Dashboard() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">대시보드</h1>
-          <p className="text-gray-500 mt-1">VIP한국형가치투자 포트폴리오 분석</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">대시보드</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">VIP한국형가치투자 포트폴리오 분석</p>
         </div>
-        <div className="flex items-center gap-2 text-sm text-gray-500">
+        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
           <span>마지막 업데이트:</span>
-          <span className="font-medium text-gray-700">
+          <span className="font-medium text-gray-700 dark:text-gray-300">
             {new Date().toLocaleDateString('ko-KR')}
           </span>
         </div>
@@ -131,21 +155,21 @@ interface StatCardProps {
 
 function StatCard({ title, value, suffix, icon, color, change }: StatCardProps) {
   const colorClasses = {
-    blue: 'bg-blue-50 text-blue-600',
-    green: 'bg-green-50 text-green-600',
-    red: 'bg-red-50 text-red-600',
-    amber: 'bg-amber-50 text-amber-600',
+    blue: 'bg-blue-50 dark:bg-blue-900/30 text-blue-600',
+    green: 'bg-green-50 dark:bg-green-900/30 text-green-600',
+    red: 'bg-red-50 dark:bg-red-900/30 text-red-600',
+    amber: 'bg-amber-50 dark:bg-amber-900/30 text-amber-600',
   }
 
   return (
-    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-sm text-gray-500">{title}</span>
+        <span className="text-sm text-gray-500 dark:text-gray-400">{title}</span>
         <div className={cn('p-2 rounded-lg', colorClasses[color])}>{icon}</div>
       </div>
       <div className="flex items-baseline gap-1">
-        <span className="text-2xl font-bold text-gray-900">{value}</span>
-        {suffix && <span className="text-gray-500">{suffix}</span>}
+        <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</span>
+        {suffix && <span className="text-gray-500 dark:text-gray-400">{suffix}</span>}
       </div>
       {change && (
         <p
@@ -179,7 +203,7 @@ function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) 
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
       >
         이전
       </button>
@@ -197,7 +221,7 @@ function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) 
                 'w-10 h-10 text-sm rounded-lg',
                 currentPage === page
                   ? 'bg-primary-600 text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
               )}
             >
               {page}
@@ -209,7 +233,7 @@ function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) 
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
       >
         다음
       </button>
