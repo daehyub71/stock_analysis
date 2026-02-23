@@ -192,14 +192,14 @@ class TestStockScorer:
     def test_no_data_neutral(self, mock_manual):
         """데이터 없으면 중립 점수"""
         scorer = StockScorer(
-            "005930", "삼성전자",
+            "999999", "테스트종목",  # DB에 없는 코드로 실제 DB 로드 방지
             indicators={"has_data": False},
-            financials={},
+            financials={"per": None},  # truthy dict으로 _load_from_db 스킵
             news_items=[],
         )
         result = scorer.calculate_total()
 
-        # 대략 중간 점수 (각 중립값 합)
+        # 대략 중간 점수 (각 중립값 합: 기술15 + 기본25 + 감정9 = 49)
         assert 40.0 <= result["total_score"] <= 55.0
 
     @patch("app.services.scoring.get_manual_sentiment_score")

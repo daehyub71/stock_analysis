@@ -372,8 +372,8 @@ def _format_analysis_result(result: dict, stock: dict = None) -> dict:
             total_score = result.get("total_score", 0)
 
         return {
-            "stockCode": result.get("stock_code", ""),
-            "stockName": result.get("stock_name", ""),
+            "stockCode": stock_code or result.get("stock_code", ""),
+            "stockName": stock_name or result.get("stock_name", ""),
             "analysisDate": result.get("analysis_date", ""),
             "totalScore": round(total_score, 1),
             "maxScore": 100,

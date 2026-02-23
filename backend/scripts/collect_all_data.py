@@ -64,7 +64,7 @@ def collect_prices(stock_code: str, stock_name: str, years: int = 1) -> dict:
 
 
 def collect_financials(stock_code: str) -> dict:
-    """재무 데이터 수집 (네이버 금융)"""
+    """재무 데이터 수집 (네이버 금융) + stocks_anal 테이블에 저장"""
     try:
         time.sleep(0.5)  # Rate limit
 
@@ -93,6 +93,38 @@ def collect_financials(stock_code: str) -> dict:
                 "debt_ratio": financials.get("debt_ratio"),
                 "current_ratio": financials.get("current_ratio"),
             })
+
+        # PSR 계산: 시가총액 / 매출액 (같은 단위)
+        mc = result.get("market_cap")
+        revenue = result.get("revenue")
+        if mc and revenue and revenue > 0:
+            result["psr"] = round(mc / revenue, 2)
+
+        # stocks_anal 테이블에 재무 데이터 저장
+        db_fields = {}
+        field_map = {
+            "per": "per", "pbr": "pbr", "psr": "psr",
+            "roe": "roe", "op_margin": "op_margin",
+            "debt_ratio": "debt_ratio", "current_ratio": "current_ratio",
+            "revenue_growth": "revenue_growth", "op_growth": "op_growth",
+            "market_cap": "market_cap",
+        }
+        for db_key, data_key in field_map.items():
+            val = result.get(data_key)
+            if val is not None:
+                # market_cap은 bigint → 정수 변환 필수
+                if db_key == "market_cap":
+                    val = int(val)
+                db_fields[db_key] = val
+
+        if db_fields:
+            try:
+                client = supabase_db.get_client()
+                client.table("stocks_anal").update(db_fields).eq(
+                    "code", stock_code
+                ).execute()
+            except Exception as db_err:
+                print(f"  ⚠️ 재무 데이터 DB 저장 실패: {db_err}")
 
         return result
 

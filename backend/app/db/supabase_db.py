@@ -258,9 +258,16 @@ def get_analysis_ranking(
     limit: int = 50,
     min_score: float = 0
 ) -> list[dict]:
-    """점수 순위 조회"""
+    """
+    점수 순위 조회
+
+    해당 날짜의 분석 결과를 조회하되, 결과가 부족하면
+    최근 7일 내 각 종목의 최신 분석 결과를 사용하여 랭킹 구성
+    """
     try:
         client = get_client()
+
+        # 1차: 지정된 날짜의 분석 결과 조회
         response = client.table("analysis_results_anal").select(
             "*, stocks_anal(code, name, sector)"
         ).eq(
@@ -270,7 +277,44 @@ def get_analysis_ranking(
         ).order(
             "total_score", desc=True
         ).limit(limit).execute()
-        return response.data
+
+        exact_results = response.data or []
+
+        # 전체 활성 종목 수 확인
+        all_stocks = get_all_stocks(active_only=True)
+        total_active = len(all_stocks)
+
+        # 지정 날짜 결과가 활성 종목의 절반 이상이면 그대로 반환
+        if len(exact_results) >= total_active * 0.5:
+            return exact_results
+
+        # 2차: 최근 7일 분석 결과에서 종목별 최신 결과 수집
+        from datetime import timedelta
+        cutoff = (datetime.strptime(analysis_date, "%Y-%m-%d") - timedelta(days=7)).strftime("%Y-%m-%d")
+
+        response2 = client.table("analysis_results_anal").select(
+            "*, stocks_anal(code, name, sector)"
+        ).gte(
+            "analysis_date", cutoff
+        ).gte(
+            "total_score", min_score
+        ).order(
+            "analysis_date", desc=True
+        ).execute()
+
+        all_recent = response2.data or []
+
+        # 종목별 최신 분석 결과만 유지
+        latest_by_stock: dict[int, dict] = {}
+        for row in all_recent:
+            sid = row.get("stock_id")
+            if sid and sid not in latest_by_stock:
+                latest_by_stock[sid] = row
+
+        # 점수 기준 정렬
+        ranked = sorted(latest_by_stock.values(), key=lambda x: x.get("total_score", 0), reverse=True)
+        return ranked[:limit]
+
     except Exception:
         return []
 

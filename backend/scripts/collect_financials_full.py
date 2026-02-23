@@ -190,7 +190,11 @@ def main():
         }
         for db_field, data_key in field_map.items():
             if stock.get(db_field) is None and data.get(data_key) is not None:
-                update[db_field] = data[data_key]
+                val = data[data_key]
+                # market_cap은 bigint → 정수 변환 필수
+                if db_field == "market_cap":
+                    val = int(val)
+                update[db_field] = val
 
         if update:
             try:

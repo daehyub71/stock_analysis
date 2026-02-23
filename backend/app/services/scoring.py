@@ -272,6 +272,9 @@ def calculate_stock_score(
     stock_code: str,
     stock_name: Optional[str] = None,
     save: bool = False,
+    indicators: Optional[dict] = None,
+    financials: Optional[dict] = None,
+    news_items: Optional[list[dict]] = None,
 ) -> dict:
     """
     종목 종합 점수 계산
@@ -280,11 +283,19 @@ def calculate_stock_score(
         stock_code: 종목코드
         stock_name: 종목명
         save: Supabase 저장 여부
+        indicators: 기술지표 (없으면 자동 계산)
+        financials: 재무 데이터 (없으면 DB에서 조회)
+        news_items: 뉴스 리스트 (없으면 자동 수집)
 
     Returns:
         분석 결과
     """
-    scorer = StockScorer(stock_code, stock_name)
+    scorer = StockScorer(
+        stock_code, stock_name,
+        indicators=indicators,
+        financials=financials,
+        news_items=news_items,
+    )
     result = scorer.calculate_total()
 
     if save:

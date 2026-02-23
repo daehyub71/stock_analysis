@@ -408,11 +408,17 @@ class FundamentalAnalyzer:
             debt_score + current_score
         )
 
+        # 적자 기업 여부 판정 (PER < 0 또는 ROE < 0)
+        per_val = self.financials.get("per")
+        roe_val = self.financials.get("roe")
+        is_loss = (per_val is not None and per_val < 0) or (roe_val is not None and roe_val < -5)
+
         return {
             "stock_code": self.stock_code,
             "stock_id": self.stock_id,
             "sector": self.sector,
             "has_data": self.has_data,
+            "is_loss_company": is_loss,
             "total_score": round(total, 1),
             "max_score": self.MAX_TOTAL,
             "details": {
