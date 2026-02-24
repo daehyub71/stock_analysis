@@ -232,7 +232,7 @@ async def get_price_history(
     try:
         prices = sqlite_db.get_prices(code, limit=days)
         if not prices:
-            raise HTTPException(status_code=404, detail=f"No price data for: {code}")
+            return []
 
         return [
             {
