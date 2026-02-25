@@ -33,6 +33,13 @@ def collect_all_from_main_page(stock_code: str) -> dict:
     result = {}
 
     try:
+        # === 0. 업종 정보 (trade_compare 섹션) ===
+        compare_section = soup.select_one("div.section.trade_compare")
+        if compare_section:
+            sector_em = compare_section.select_one("em")
+            if sector_em:
+                result["sector"] = sector_em.get_text(strip=True)
+
         # === 1. 투자지표 테이블 (per_table) → PER, PBR, 배당수익률 ===
         table = soup.select_one("table.per_table")
         if table:

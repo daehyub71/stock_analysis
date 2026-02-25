@@ -107,7 +107,7 @@ def collect_financials(stock_code: str) -> dict:
             "roe": "roe", "op_margin": "op_margin",
             "debt_ratio": "debt_ratio", "current_ratio": "current_ratio",
             "revenue_growth": "revenue_growth", "op_growth": "op_growth",
-            "market_cap": "market_cap",
+            "market_cap": "market_cap", "sector": "sector",
         }
         for db_key, data_key in field_map.items():
             val = result.get(data_key)

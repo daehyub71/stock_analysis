@@ -32,6 +32,13 @@ export default function Dashboard() {
     queryFn: () => stockApi.getSectors(),
   })
 
+  // 대시보드 통계
+  const { data: overview } = useQuery({
+    queryKey: ['overview'],
+    queryFn: () => stockApi.getOverview(),
+    staleTime: 1000 * 60 * 5,
+  })
+
   // 점수 변화 알림 (페이지 로드 시 1회)
   const { data: alertData } = useQuery({
     queryKey: ['scoreChanges'],
@@ -56,14 +63,12 @@ export default function Dashboard() {
     return <ErrorDisplay error={error as Error} onRetry={() => refetch()} />
   }
 
-  // 임시 통계 데이터 (실제로는 API에서 가져옴)
   const stats = {
-    totalStocks: data?.total || 44,
-    avgScore: 65.2,
-    topGrade: 'A+',
-    topGradeCount: 3,
-    upCount: 28,
-    downCount: 16,
+    totalStocks: overview?.totalStocks ?? data?.total ?? 0,
+    avgScore: overview?.avgScore ?? 0,
+    upCount: overview?.upCount ?? 0,
+    downCount: overview?.downCount ?? 0,
+    analyzedCount: overview?.analyzedCount ?? 0,
   }
 
   return (
@@ -72,7 +77,7 @@ export default function Dashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">대시보드</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">VIP한국형가치투자 포트폴리오 분석</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">전체 종목 포트폴리오 분석</p>
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
           <span>마지막 업데이트:</span>
@@ -104,7 +109,6 @@ export default function Dashboard() {
           suffix="개"
           icon={<TrendingUp className="w-5 h-5" />}
           color="red"
-          change="+3"
         />
         <StatCard
           title="하락 종목"
@@ -112,7 +116,6 @@ export default function Dashboard() {
           suffix="개"
           icon={<TrendingDown className="w-5 h-5" />}
           color="blue"
-          change="-2"
         />
       </div>
 

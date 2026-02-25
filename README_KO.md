@@ -4,45 +4,51 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-green.svg)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-18.3-blue.svg)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg)](https://www.typescriptlang.org/)
+[![Tests](https://img.shields.io/badge/Tests-159%20passed-brightgreen.svg)](#%ED%85%8C%EC%8A%A4%ED%8A%B8)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> 🇺🇸 [English Documentation](README.md)
+> [English Documentation](README.md)
 
 **기술분석**, **기본분석**, **감정분석**을 결합하여 KOSPI/KOSDAQ 종목의 투자 점수를 산출하는 종합 한국 주식 분석 시스템입니다.
 
+**라이브 데모**: [https://frontend-pi-coral-73.vercel.app](https://frontend-pi-coral-73.vercel.app)
+
 ## 주요 기능
 
-### 📊 다차원 분석
-- **기술분석 (30점 만점)**
-  - 이동평균선 배열 (MA5/20/60/120)
-  - 이평선 이격도 분석
-  - RSI (14일)
-  - MACD (12, 26, 9)
-  - 거래량 분석
+### 다차원 점수 분석 (100점 만점)
+- **기술분석 (30점)** - 이평선 배열, 이격도, RSI, MACD, 거래량
+- **기본분석 (50점)** - PER, PBR, PSR, ROE, 성장성, 안정성
+- **감정분석 (20점)** - 뉴스 감정 분석 (OpenAI), 수동 평점 오버라이드
 
-- **기본분석 (50점 만점)**
-  - 밸류에이션: PER, PBR, PSR
-  - 성장성: 매출액 증가율, 영업이익 증가율
-  - 수익성: ROE, 영업이익률
-  - 재무 안정성: 부채비율, 유동비율
-
-- **감정분석 (20점 만점)**
-  - 뉴스 감정 분석 (OpenAI GPT-4o-mini)
-  - 구글 트렌드 연동
-  - **수동 뉴스 평점 시스템** (-10 ~ +10)
-
-### 🤖 AI 기반 기능
+### AI 기반 기능
 - **LLM 코멘터리**: GPT-4o-mini를 활용한 자동 한국어 투자 해설 생성
 - **뉴스 감정 분석**: 금융 뉴스 자동 감정 분류
-- **수동 오버라이드**: 사용자가 직접 뉴스를 평가하여 자동 분석 대체 가능
+- **수동 오버라이드**: 사용자가 직접 뉴스를 평가하여 (-10 ~ +10) 자동 분석 대체
 
-### 📈 대시보드 기능
-- 실시간 주가 표시
-- 이동평균선 오버레이가 포함된 인터랙티브 차트
-- 종목 비교 (최대 4종목)
-- 분석 히스토리 추적
-- 점수 기반 종목 랭킹
-- 업종, 점수, 시장별 고급 필터링
+### 대시보드 페이지
+| 페이지 | 설명 |
+|--------|------|
+| 대시보드 | 통계 카드, 종목 테이블, 업종 필터 |
+| 종목 상세 | 3탭 분석 (기술분석 / 기본분석 / 감정분석) + 주가 차트 |
+| 순위 | 점수 기반 상위/하위 종목 랭킹 |
+| 비교 | 최대 4종목 나란히 비교 |
+| 포트폴리오 | 포트폴리오 생성/관리, 비중 조절, 점수 산출 |
+| 히스토리 | 점수 추이 추적 (7일 / 30일 / 90일 / 1년) |
+| 백테스팅 | 기술 점수 기반 매수/매도 시뮬레이션 |
+| 설정 | 테마 (라이트/다크/시스템), 이메일 알림, 데이터 내보내기 |
+
+## 아키텍처
+
+```
+[Vercel]           [Cloud Run]           [Supabase]       [SQLite]
+ React 앱     -->   FastAPI 백엔드  -->  PostgreSQL   +   시세 히스토리
+ (프론트엔드)       (Docker)              (분석 데이터)     (로컬 OHLCV)
+
+                    [GitHub Actions]
+                     일일 시세 수집
+                     분기 재무제표
+                     감정분석
+```
 
 ## 기술 스택
 
@@ -50,31 +56,32 @@
 | 기술 | 용도 |
 |------|------|
 | FastAPI | REST API 프레임워크 |
-| SQLAlchemy | SQLite ORM (시세 데이터) |
-| Supabase | 클라우드 데이터베이스 (분석 데이터) |
-| pykrx | 한국 주식 데이터 수집 |
-| OpenAI API | 감정 분석 & 코멘터리 |
-| pandas/numpy | 데이터 처리 |
-| ta (Technical Analysis) | 기술 지표 계산 |
+| Supabase | 클라우드 데이터베이스 (PostgreSQL) |
+| SQLite + SQLAlchemy | 로컬 시세 저장 |
+| pykrx | 한국 주식 데이터 (백업) |
+| KIS API | 한국투자증권 (실시간 시세) |
+| OpenAI API | 감정분석 & LLM 코멘터리 |
+| pandas / numpy / ta | 데이터 처리 & 기술 지표 |
+| pytest | 테스트 (159개) |
 
 ### 프론트엔드
 | 기술 | 용도 |
 |------|------|
-| React 18 | UI 프레임워크 |
-| TypeScript | 타입 안정성 |
-| Vite | 빌드 도구 |
+| React 18 + TypeScript | UI 프레임워크 |
+| Vite 6 | 빌드 도구 |
 | TanStack Query | 서버 상태 관리 |
 | Zustand | 클라이언트 상태 관리 |
-| Tailwind CSS | 스타일링 |
+| Tailwind CSS | 스타일링 (다크 모드 지원) |
 | Recharts | 데이터 시각화 |
-| Lightweight Charts | 주가 차트 |
+| Lightweight Charts | 인터랙티브 주가 차트 |
+| React Router 6 | SPA 라우팅 |
 
 ### 데이터 소스
-- **KIS API** (한국투자증권): 실시간 시세
-- **pykrx**: 과거 시세 데이터 (백업)
-- **네이버 금융**: 재무제표, 밸류에이션 지표
-- **구글 트렌드**: 검색 트렌드 데이터
-- **네이버 뉴스**: 금융 뉴스 크롤링
+- **KIS API** (한국투자증권) - 실시간 시세
+- **pykrx** - 과거 시세 데이터 (폴백)
+- **네이버 금융** - 재무제표, 밸류에이션 지표, 업종 정보
+- **구글 트렌드** - 검색 트렌드 데이터
+- **네이버 뉴스** - 금융 뉴스 크롤링
 
 ## 프로젝트 구조
 
@@ -82,56 +89,54 @@
 stock_analysis/
 ├── backend/
 │   ├── app/
-│   │   ├── api/              # API 엔드포인트
-│   │   │   ├── analysis.py   # 분석 API
-│   │   │   ├── stocks.py     # 종목 API
-│   │   │   └── portfolios.py # 포트폴리오 API
-│   │   ├── collectors/       # 데이터 수집기
-│   │   │   ├── kis_api.py    # KIS API 클라이언트
+│   │   ├── api/                 # API 엔드포인트
+│   │   │   ├── stocks.py        # 종목 목록, 상세, 통계, 업종
+│   │   │   ├── analysis.py      # 분석, 코멘터리, 뉴스, 감정
+│   │   │   ├── portfolios.py    # 포트폴리오 CRUD, 점수
+│   │   │   ├── backtest.py      # 백테스팅 엔진
+│   │   │   └── alerts.py        # 점수 변화 알림, 이메일
+│   │   ├── collectors/          # 데이터 수집기
+│   │   │   ├── kis_api.py       # KIS API (자동 토큰 갱신, 속도 제한)
 │   │   │   ├── pykrx_collector.py
-│   │   │   ├── naver_finance.py
+│   │   │   ├── naver_finance.py # 재무 데이터 & 업종 정보
 │   │   │   ├── news_collector.py
 │   │   │   └── google_trends.py
-│   │   ├── services/         # 비즈니스 로직
-│   │   │   ├── technical.py  # 기술분석
-│   │   │   ├── fundamental.py # 기본분석
-│   │   │   ├── sentiment.py  # 감정분석
-│   │   │   ├── scoring.py    # 점수 계산
-│   │   │   └── commentary.py # LLM 코멘터리
-│   │   ├── analyzers/        # 분석 모듈
-│   │   │   ├── indicators.py # 기술 지표
+│   │   ├── services/            # 비즈니스 로직
+│   │   │   ├── technical.py     # 기술분석 (30점)
+│   │   │   ├── fundamental.py   # 기본분석 (50점)
+│   │   │   ├── sentiment.py     # 감정분석 (20점)
+│   │   │   ├── scoring.py       # 점수 통합 & 등급 산정
+│   │   │   ├── commentary.py    # LLM 코멘터리 생성
+│   │   │   ├── backtesting.py   # 백테스팅 엔진
+│   │   │   └── email_service.py # SMTP 이메일 알림
+│   │   ├── analyzers/           # 분석 모듈
+│   │   │   ├── indicators.py    # MA, RSI, MACD, 거래량
 │   │   │   └── openai_sentiment.py
-│   │   ├── db/               # 데이터베이스
-│   │   │   ├── sqlite_db.py  # 시세 데이터 (로컬)
-│   │   │   └── supabase_db.py # 분석 데이터 (클라우드)
-│   │   ├── models/           # Pydantic 모델
-│   │   └── main.py           # FastAPI 앱
+│   │   ├── db/                  # 데이터베이스 레이어
+│   │   │   ├── sqlite_db.py     # 시세 데이터 (로컬)
+│   │   │   └── supabase_db.py   # 분석 데이터 (클라우드)
+│   │   ├── models/              # Pydantic 모델
+│   │   └── main.py              # FastAPI 앱 진입점
+│   ├── scripts/                 # 데이터 수집 스크립트
+│   ├── tests/                   # 159개 단위 테스트
+│   ├── Dockerfile               # Cloud Run 컨테이너
 │   └── requirements.txt
 ├── frontend/
 │   ├── src/
-│   │   ├── pages/            # 페이지 컴포넌트
-│   │   │   ├── Dashboard.tsx
-│   │   │   ├── StockDetailPage.tsx
-│   │   │   ├── ComparePage.tsx
-│   │   │   └── HistoryPage.tsx
-│   │   ├── components/       # UI 컴포넌트
-│   │   │   ├── dashboard/
-│   │   │   ├── charts/
-│   │   │   ├── analysis/
-│   │   │   └── common/
-│   │   ├── services/         # API 클라이언트
-│   │   ├── stores/           # Zustand 스토어
-│   │   └── types/            # TypeScript 타입
+│   │   ├── pages/               # 8개 페이지 컴포넌트
+│   │   ├── components/          # dashboard, charts, analysis, common
+│   │   ├── services/api.ts      # Axios API 클라이언트
+│   │   ├── stores/              # Zustand (종목, 테마)
+│   │   ├── types/               # TypeScript 인터페이스
+│   │   └── lib/                 # 유틸리티
+│   ├── vercel.json              # Vercel SPA 설정
 │   └── package.json
-├── scripts/                  # 자동화 스크립트
-│   ├── collect_daily_prices.py
-│   ├── run_daily_analysis.py
-│   └── collect_news.py
-├── docs/                     # 문서
-└── .github/workflows/        # GitHub Actions
+├── .github/workflows/           # 3개 GitHub Actions 파이프라인
+├── docker-compose.yml
+└── docs/
 ```
 
-## 설치
+## 빠른 시작
 
 ### 사전 요구사항
 - Python 3.11+
@@ -140,37 +145,31 @@ stock_analysis/
 - OpenAI API 키
 - KIS API 자격증명 (선택사항)
 
-### 백엔드 설정
+### 백엔드
 
 ```bash
-# 저장소 클론
-git clone https://github.com/yourusername/stock_analysis.git
-cd stock_analysis
-
-# 가상환경 생성
 cd backend
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# 의존성 설치
 pip install -r requirements.txt
 
 # 환경 설정
 cp .env.example .env
 # .env 파일에 자격증명 입력
+
+# 서버 시작
+uvicorn app.main:app --reload --port 8000
 ```
 
-### 프론트엔드 설정
+### 프론트엔드
 
 ```bash
 cd frontend
-
-# 의존성 설치
 npm install
-
-# 개발 서버 시작
 npm run dev
 ```
+
+접속: `http://localhost:5173`
 
 ### 환경 변수
 
@@ -180,70 +179,79 @@ npm run dev
 # Supabase
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 # OpenAI
 OPENAI_API_KEY=sk-your-api-key
 
-# KIS API (선택사항)
+# KIS API (선택사항 - 실시간 시세용)
 KIS_APP_KEY=your-app-key
 KIS_APP_SECRET=your-app-secret
-KIS_ACCOUNT_TYPE=VIRTUAL  # 또는 REAL
+
+# SMTP (선택사항 - 이메일 알림용)
+SMTP_SERVER=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email
+SMTP_PASSWORD=your-app-password
 
 # 데이터베이스
-SQLITE_DB_PATH=./data/stock_prices.db
+SQLITE_DB_PATH=./data/price_history.db
+
+# CORS
+CORS_ORIGINS=http://localhost:3000,http://localhost:5173
 ```
 
-## 사용 방법
+## API 엔드포인트
 
-### 애플리케이션 시작
-
-```bash
-# 터미널 1: 백엔드
-cd backend
-source venv/bin/activate
-uvicorn app.main:app --reload --port 8000
-
-# 터미널 2: 프론트엔드
-cd frontend
-npm run dev
-```
-
-대시보드 접속: `http://localhost:3000`
-
-### API 엔드포인트
-
+### 종목
 | 메서드 | 엔드포인트 | 설명 |
 |--------|----------|------|
-| GET | `/api/stocks` | 종목 목록 조회 (필터 지원) |
-| GET | `/api/stocks/{code}` | 종목 상세 조회 |
-| GET | `/api/stocks/{code}/history` | 시세 히스토리 조회 |
+| GET | `/api/stocks` | 종목 목록 (필터, 정렬, 페이지네이션) |
+| GET | `/api/stocks/{code}` | 종목 상세 |
+| GET | `/api/stocks/{code}/history` | 시세 히스토리 |
+| GET | `/api/stocks/overview` | 대시보드 통계 |
+| GET | `/api/stocks/sectors` | 업종 목록 |
 | GET | `/api/stocks/compare` | 종목 비교 |
-| GET | `/api/analysis/{code}` | 분석 결과 조회 |
+
+### 분석
+| 메서드 | 엔드포인트 | 설명 |
+|--------|----------|------|
+| GET | `/api/analysis/{code}` | 분석 결과 |
 | POST | `/api/analysis/{code}/run` | 새 분석 실행 |
-| GET | `/api/analysis/{code}/commentary` | AI 코멘터리 조회 |
-| GET | `/api/analysis/{code}/news` | 뉴스 목록 조회 |
-| PUT | `/api/analysis/{code}/news/{id}/rate` | 뉴스 평점 업데이트 |
+| GET | `/api/analysis/{code}/commentary` | AI 코멘터리 |
+| GET | `/api/analysis/{code}/news` | 뉴스 목록 |
+| PUT | `/api/analysis/{code}/news/{id}/rate` | 뉴스 평점 (-10~+10) |
+| PUT | `/api/analysis/{code}/news/rate-all` | 미평점 뉴스 일괄 평점 |
+| GET | `/api/analysis/{code}/sentiment-score` | 감정 점수 |
+| GET | `/api/analysis/{code}/history` | 점수 히스토리 |
+| GET | `/api/analysis/ranking` | 점수 랭킹 |
 
-### 자동 데이터 수집
+### 포트폴리오
+| 메서드 | 엔드포인트 | 설명 |
+|--------|----------|------|
+| GET | `/api/portfolios` | 포트폴리오 목록 |
+| POST | `/api/portfolios` | 포트폴리오 생성 |
+| GET | `/api/portfolios/{id}` | 포트폴리오 상세 |
+| PUT | `/api/portfolios/{id}` | 포트폴리오 수정 |
+| DELETE | `/api/portfolios/{id}` | 포트폴리오 삭제 |
+| POST | `/api/portfolios/{id}/stocks` | 종목 추가 |
+| DELETE | `/api/portfolios/{id}/stocks/{code}` | 종목 제거 |
+| PUT | `/api/portfolios/{id}/stocks/{code}/weight` | 비중 조절 |
+| GET | `/api/portfolios/{id}/score` | 포트폴리오 점수 |
 
-```bash
-# 일일 시세 수집 (GitHub Actions 또는 cron)
-python scripts/collect_daily_prices.py
-
-# 전체 종목 분석 실행
-python scripts/run_daily_analysis.py
-
-# 뉴스 수집
-python scripts/collect_news.py
-```
+### 백테스트 & 알림
+| 메서드 | 엔드포인트 | 설명 |
+|--------|----------|------|
+| POST | `/api/backtest/{code}/run` | 백테스트 실행 |
+| GET | `/api/backtest/{code}/date-range` | 가능 기간 조회 |
+| GET | `/api/alerts/score-changes` | 점수 변화 알림 |
+| POST | `/api/alerts/send-alert-email` | 알림 이메일 발송 |
 
 ## 점수 체계
 
-### 등급 산정
+### 등급표
 
-| 등급 | 점수 범위 | 설명 |
-|------|----------|------|
+| 등급 | 점수 | 설명 |
+|------|------|------|
 | A+ | 90-100 | 매우 우수 |
 | A | 80-89 | 우수 |
 | B+ | 70-79 | 양호 |
@@ -258,114 +266,144 @@ python scripts/collect_news.py
 ```
 총점 (100) = 기술분석 (30) + 기본분석 (50) + 감정분석 (20)
 
-기술분석 (30):
-├── 이평선 배열: 6
-├── 이평선 이격도: 6
-├── RSI: 5
-├── MACD: 5
-└── 거래량: 8
+기술분석 (30):             기본분석 (50):             감정분석 (20):
+├── 이평선 배열: 6         ├── PER: 8                ├── 뉴스 감정: 10
+├── 이평선 이격도: 6       ├── PBR: 7                ├── 뉴스 영향도: 6
+├── RSI: 5                ├── PSR: 5                └── 뉴스량/관심도: 4
+├── MACD: 5               ├── 매출액 증가율: 6
+└── 거래량: 8              ├── 영업이익 증가율: 6
+                          ├── ROE: 5
+                          ├── 영업이익률: 5
+                          ├── 부채비율: 4
+                          └── 유동비율: 4
+```
 
-기본분석 (50):
-├── PER: 8
-├── PBR: 7
-├── PSR: 5
-├── 매출액 증가율: 6
-├── 영업이익 증가율: 6
-├── ROE: 5
-├── 영업이익률: 5
-├── 부채비율: 4
-└── 유동비율: 4
+## 배포
 
-감정분석 (20):
-├── 뉴스 감정: 10
-├── 뉴스 영향도: 6
-└── 뉴스량/관심도: 4
+### 프로덕션 구성
+
+| 구성요소 | 플랫폼 | URL |
+|---------|--------|-----|
+| 프론트엔드 | Vercel | https://frontend-pi-coral-73.vercel.app |
+| 백엔드 | Google Cloud Run (서울) | https://stock-analysis-backend-675597240676.asia-northeast3.run.app |
+| 데이터베이스 | Supabase (PostgreSQL) | 클라우드 관리형 |
+| CI/CD | GitHub Actions | 3개 자동화 파이프라인 |
+
+### 백엔드 배포 (Cloud Run)
+
+```bash
+# Docker 이미지 빌드 & 푸시
+gcloud builds submit --tag asia-northeast3-docker.pkg.dev/PROJECT_ID/stock-analysis/backend:latest \
+  --region=asia-northeast3 ./backend
+
+# Cloud Run 배포
+gcloud run deploy stock-analysis-backend \
+  --image=asia-northeast3-docker.pkg.dev/PROJECT_ID/stock-analysis/backend:latest \
+  --region=asia-northeast3 --allow-unauthenticated --port=8080 \
+  --memory=512Mi --cpu=1 --min-instances=0 --max-instances=3 \
+  --env-vars-file=backend/env.yaml
+```
+
+### 프론트엔드 배포 (Vercel)
+
+```bash
+cd frontend
+vercel --prod
+# Vercel 대시보드에서 VITE_API_URL 환경변수를 Cloud Run URL로 설정
+```
+
+### Docker (로컬)
+
+```bash
+docker-compose up -d
+# 프론트엔드: http://localhost:3000
+# 백엔드:    http://localhost:8000
+```
+
+## GitHub Actions CI/CD
+
+| 워크플로우 | 스케줄 | 설명 |
+|-----------|--------|------|
+| `collect-prices.yml` | 평일 20:30 KST | 시세 수집 + 기술 지표 + 점수 계산 |
+| `collect-quarterly.yml` | 분기별 | 재무제표 & 밸류에이션 지표 |
+| `collect-sentiment.yml` | 월/목 21:00 KST | 뉴스 수집 & 감정분석 |
+
+## 데이터베이스 스키마
+
+### Supabase (PostgreSQL) - 클라우드
+| 테이블 | 설명 |
+|--------|------|
+| `stocks_anal` | 종목 마스터 (코드, 종목명, 업종, 시장, 재무지표) |
+| `analysis_results_anal` | 분석 결과 (기술/기본/감정 점수, 총점, 등급) |
+| `news_ratings_anal` | 뉴스 항목 및 수동 평점 (-10 ~ +10) |
+| `portfolios_anal` | 포트폴리오 정의 |
+| `portfolio_stocks_anal` | 포트폴리오 보유 종목 (비중 포함) |
+| `sector_averages_anal` | 업종 평균 벤치마크 |
+
+### SQLite - 로컬
+| 테이블 | 설명 |
+|--------|------|
+| `price_history` | 일별 OHLCV 데이터 |
+| `technical_indicators` | 사전 계산된 MA, RSI, MACD, 거래량비율 |
+
+## 테스트
+
+```bash
+cd backend
+pytest tests/ -v
+# 159 passed
+```
+
+```bash
+cd frontend
+npx tsc --noEmit   # TypeScript 타입 체크
+npx vite build      # 빌드 검증
 ```
 
 ## 스크린샷
 
 ### 1. 메인 대시보드
-모든 종목의 점수, 등급, 점수 분포를 표시하는 메인 대시보드입니다. 업종, 시장(KOSPI/KOSDAQ), 다양한 기준으로 필터링 및 정렬할 수 있습니다.
-
 ![메인 대시보드](docs/screenshots/dash_00.png)
 
-**주요 기능:**
-- 포트폴리오 요약 (총 종목 수, 평균 점수, 상승/하락 종목)
-- 실시간 가격 및 등락률이 포함된 종목 테이블
-- 점수 분포 시각화 바 (기술분석/기본분석/감정분석)
-- 등급 표시 (A+, A, B+, B, C+, C, D, F)
+통계 카드 (분석 종목, 평균 점수, 상승/하락 종목), 종목 테이블, 점수 분포 바, 등급 표시
 
----
-
-### 2. 종목 상세 - 개요 & AI 코멘터리
-AI가 생성한 투자 코멘터리와 함께 종합 분석을 보여주는 종목 상세 페이지입니다.
-
+### 2. 종목 상세 - AI 코멘터리
 ![종목 개요](docs/screenshots/stock_news_04.png)
 
-**주요 기능:**
-- 현재가와 등락률이 표시된 종목 헤더
-- 등급 배지와 함께 표시되는 종합 점수
-- 점수 분석 카드 (기술분석 23.0/30, 기본분석 27.0/50, 감정분석 15.0/20)
-- AI가 생성한 한국어 투자 코멘터리 (핵심 인사이트 및 리스크 요인)
+AI가 생성한 한국어 투자 코멘터리, 점수 분석 카드, 핵심 인사이트 및 리스크 요인
 
----
-
-### 3. 기술분석 탭
-이동평균선 오버레이가 포함된 인터랙티브 주가 차트와 상세 기술 지표를 표시합니다.
-
+### 3. 기술분석
 ![기술분석](docs/screenshots/stock_tech_02.png)
 
-**주요 기능:**
-- MA5, MA20, MA60, MA120 이동평균선이 표시된 주가 차트
-- 기술 점수 카드 (이평선 배열, 이평선 이격도, RSI, MACD, 거래량)
-- 상세 지표 값 및 해석
-- RSI 게이지 시각화 (과매도/중립/과매수 구간)
+이동평균선 오버레이 주가 차트, RSI 게이지, MACD 지표, 거래량 분석
 
----
-
-### 4. 기본분석 탭
-카테고리별로 정리된 종합 재무 지표와 시각적 점수를 표시합니다.
-
+### 4. 기본분석
 ![기본분석](docs/screenshots/stock_basic_03.png)
 
-**주요 기능:**
-- 밸류에이션 지표: PER (9.7), PBR (1.60), PSR (4.44)
-- 수익성 지표: ROE (21.1%), 영업이익률 (43.6%)
-- 성장성 지표: 매출성장률 (+41.8%), 영업이익성장률 (+54.0%)
-- 안정성 지표: 부채비율 (16.0%), 유동비율 (231.2%)
-
----
+밸류에이션, 수익성, 성장성, 안정성 카테고리별 재무 지표
 
 ### 5. 감정분석 & 뉴스 평점
-자동 감정분석을 사용자가 직접 오버라이드할 수 있는 수동 뉴스 평점 시스템입니다.
-
 ![감정분석](docs/screenshots/stock_total_01.png)
 
-**주요 기능:**
-- 수동/자동 표시가 포함된 현재 시장 감정 상태
-- 사용자 평점 적용 시 수동 평점 알림 표시
-- -10 ~ +10 척도의 뉴스 평점 인터페이스
-- 평점 버튼이 포함된 개별 뉴스 항목
-- 사용자 평점 기반 실시간 점수 재계산
+수동 뉴스 평점 인터페이스 (-10 ~ +10), 실시간 점수 재계산
 
 ## 로드맵
 
-- [x] Phase 1: MVP (1-4주차)
-  - [x] 데이터 수집 인프라
-  - [x] 분석 엔진
-  - [x] React 대시보드
-  - [x] LLM 코멘터리
-  - [x] 수동 뉴스 평점
+- [x] Phase 1: 핵심 시스템 (1-4주차)
+  - [x] 데이터 수집 인프라 (KIS, pykrx, 네이버 금융, 뉴스)
+  - [x] 분석 엔진 (기술분석 + 기본분석 + 감정분석)
+  - [x] React 대시보드 + 종목 테이블
+  - [x] LLM 코멘터리 & 수동 뉴스 평점
 
-- [x] Phase 2: 5주차
-  - [x] 종목 비교
-  - [x] 분석 히스토리
-
-- [ ] Phase 2: 6-8주차
-  - [ ] 백테스팅 모듈
-  - [ ] 알림 시스템
-  - [ ] 다크 모드
-  - [ ] 포트폴리오 시뮬레이션
+- [x] Phase 2: 고급 기능 (5-8주차)
+  - [x] 종목 비교 (최대 4종목)
+  - [x] 분석 히스토리 추적
+  - [x] 백테스팅 엔진 (200일 슬라이딩 윈도우)
+  - [x] 알림 시스템 (토스트, 브라우저 알림, 이메일)
+  - [x] 다크 모드 (라이트 / 다크 / 시스템)
+  - [x] 포트폴리오 시뮬레이션 (CRUD, 비중 조절, 점수)
+  - [x] Docker + Cloud Run + Vercel 배포
+  - [x] GitHub Actions 자동 데이터 파이프라인
 
 ## 기여
 
@@ -390,4 +428,5 @@ AI가 생성한 투자 코멘터리와 함께 종합 분석을 보여주는 종�
 - [pykrx](https://github.com/sharebook-kr/pykrx) - 한국 주식 데이터 라이브러리
 - [FastAPI](https://fastapi.tiangolo.com/) - 현대적인 Python 웹 프레임워크
 - [Supabase](https://supabase.com/) - 오픈소스 Firebase 대안
-- [OpenAI](https://openai.com/) - 감정 분석을 위한 GPT-4o-mini
+- [OpenAI](https://openai.com/) - 감정분석 & 코멘터리를 위한 GPT-4o-mini
+- [TradingView Lightweight Charts](https://github.com/nicehash/lightweight-charts) - 인터랙티브 주가 차트

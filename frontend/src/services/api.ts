@@ -80,6 +80,18 @@ export const stockApi = {
     return response.data
   },
 
+  // 대시보드 통계
+  getOverview: async (): Promise<{
+    totalStocks: number
+    avgScore: number
+    upCount: number
+    downCount: number
+    analyzedCount: number
+  }> => {
+    const response = await api.get('/stocks/overview')
+    return response.data
+  },
+
   // 업종 목록
   getSectors: async (): Promise<string[]> => {
     const response = await api.get('/stocks/sectors')

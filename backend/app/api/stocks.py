@@ -132,6 +132,53 @@ async def get_stocks(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.get("/overview")
+async def get_overview():
+    """대시보드 통계 요약"""
+    try:
+        stocks = supabase_db.get_all_stocks()
+        total = len(stocks)
+
+        scores = []
+        up_count = 0
+        down_count = 0
+
+        for stock in stocks:
+            stock_id = stock.get("id")
+            code = stock.get("code", "")
+
+            # 분석 점수 수집
+            if stock_id:
+                analysis = supabase_db.get_latest_analysis(stock_id)
+                if analysis:
+                    score = analysis.get("total_score", 0)
+                    scores.append(score)
+
+            # 주가 등락률 기준 상승/하락 카운트
+            prices = sqlite_db.get_prices(code, limit=2)
+            if prices and len(prices) >= 2:
+                curr = prices[0].get("close_price", 0)
+                prev = prices[1].get("close_price", 0)
+                if prev > 0:
+                    change_rate = (curr - prev) / prev * 100
+                    if change_rate > 0:
+                        up_count += 1
+                    elif change_rate < 0:
+                        down_count += 1
+
+        avg_score = round(sum(scores) / len(scores), 1) if scores else 0
+
+        return {
+            "totalStocks": total,
+            "avgScore": avg_score,
+            "upCount": up_count,
+            "downCount": down_count,
+            "analyzedCount": len(scores),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.get("/sectors")
 async def get_sectors():
     """업종 목록 조회"""

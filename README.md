@@ -4,45 +4,51 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-green.svg)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-18.3-blue.svg)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg)](https://www.typescriptlang.org/)
+[![Tests](https://img.shields.io/badge/Tests-159%20passed-brightgreen.svg)](#testing)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> 🇰🇷 [한국어 문서](README_KO.md)
+> [한국어 문서](README_KO.md)
 
 A comprehensive Korean stock analysis system that combines **technical analysis**, **fundamental analysis**, and **sentiment analysis** to provide investment scoring for KOSPI/KOSDAQ stocks.
 
+**Live Demo**: [https://frontend-pi-coral-73.vercel.app](https://frontend-pi-coral-73.vercel.app)
+
 ## Features
 
-### 📊 Multi-Dimensional Analysis
-- **Technical Analysis (30 points)**
-  - Moving Average arrangement (MA5/20/60/120)
-  - MA divergence analysis
-  - RSI (14-day)
-  - MACD (12, 26, 9)
-  - Volume analysis
+### Multi-Dimensional Scoring (100 points)
+- **Technical Analysis (30 pts)** - MA arrangement, divergence, RSI, MACD, volume
+- **Fundamental Analysis (50 pts)** - PER, PBR, PSR, ROE, growth, stability
+- **Sentiment Analysis (20 pts)** - News sentiment (OpenAI), manual rating override
 
-- **Fundamental Analysis (50 points)**
-  - Valuation metrics: PER, PBR, PSR
-  - Growth metrics: Revenue growth, Operating profit growth
-  - Profitability: ROE, Operating margin
-  - Financial stability: Debt ratio, Current ratio
-
-- **Sentiment Analysis (20 points)**
-  - News sentiment analysis (OpenAI GPT-4o-mini)
-  - Google Trends integration
-  - **Manual news rating system** (-10 to +10)
-
-### 🤖 AI-Powered Features
+### AI-Powered Features
 - **LLM Commentary**: Automated Korean investment commentary using GPT-4o-mini
 - **News Sentiment Analysis**: Automatic sentiment classification of financial news
-- **Manual Override**: User can rate news manually to replace automatic analysis
+- **Manual Override**: Users can rate news manually (-10 to +10) to replace automatic analysis
 
-### 📈 Dashboard Features
-- Real-time stock price display
-- Interactive price charts with MA overlays
-- Stock comparison (up to 4 stocks)
-- Historical analysis tracking
-- Score-based stock ranking
-- Advanced filtering by sector, score, market
+### Dashboard Pages
+| Page | Description |
+|------|-------------|
+| Dashboard | Portfolio overview with stats cards, stock table, sector filters |
+| Stock Detail | 3-tab analysis (Technical / Fundamental / Sentiment) with price chart |
+| Ranking | Top/bottom ranked stocks by score |
+| Compare | Side-by-side comparison of up to 4 stocks |
+| Portfolio | Portfolio CRUD with weighted scoring |
+| History | Score trend tracking (7d / 30d / 90d / 1yr) |
+| Backtesting | Technical score-based buy/sell simulation |
+| Settings | Theme (Light/Dark/System), email alerts, data export |
+
+## Architecture
+
+```
+[Vercel]           [Cloud Run]           [Supabase]       [SQLite]
+ React App    -->   FastAPI Backend  -->  PostgreSQL   +   Price History
+ (Frontend)         (Docker)              (Analysis)       (Local OHLCV)
+
+                    [GitHub Actions]
+                     Daily price collection
+                     Quarterly financials
+                     Sentiment analysis
+```
 
 ## Tech Stack
 
@@ -50,31 +56,32 @@ A comprehensive Korean stock analysis system that combines **technical analysis*
 | Technology | Purpose |
 |------------|---------|
 | FastAPI | REST API framework |
-| SQLAlchemy | ORM for SQLite (price data) |
-| Supabase | Cloud database (analysis data) |
-| pykrx | Korean stock data collector |
-| OpenAI API | Sentiment analysis & commentary |
-| pandas/numpy | Data processing |
-| ta (Technical Analysis) | Technical indicators |
+| Supabase | Cloud database (PostgreSQL) |
+| SQLite + SQLAlchemy | Local price history |
+| pykrx | Korean stock data (backup) |
+| KIS API | Korea Investment & Securities (real-time) |
+| OpenAI API | Sentiment analysis & LLM commentary |
+| pandas / numpy / ta | Data processing & technical indicators |
+| pytest | Testing (159 tests) |
 
 ### Frontend
 | Technology | Purpose |
 |------------|---------|
-| React 18 | UI framework |
-| TypeScript | Type safety |
-| Vite | Build tool |
+| React 18 + TypeScript | UI framework |
+| Vite 6 | Build tool |
 | TanStack Query | Server state management |
 | Zustand | Client state management |
-| Tailwind CSS | Styling |
+| Tailwind CSS | Styling with dark mode |
 | Recharts | Data visualization |
-| Lightweight Charts | Price charts |
+| Lightweight Charts | Interactive price charts |
+| React Router 6 | SPA routing |
 
 ### Data Sources
-- **KIS API** (Korea Investment & Securities): Real-time prices
-- **pykrx**: Historical price data (backup)
-- **Naver Finance**: Financial statements, valuation metrics
-- **Google Trends**: Search trend data
-- **Naver News**: Financial news crawling
+- **KIS API** (Korea Investment & Securities) - Real-time prices
+- **pykrx** - Historical price data (fallback)
+- **Naver Finance** - Financial statements, valuation metrics, sector info
+- **Google Trends** - Search trend data
+- **Naver News** - Financial news crawling
 
 ## Project Structure
 
@@ -82,56 +89,54 @@ A comprehensive Korean stock analysis system that combines **technical analysis*
 stock_analysis/
 ├── backend/
 │   ├── app/
-│   │   ├── api/              # API endpoints
-│   │   │   ├── analysis.py   # Analysis endpoints
-│   │   │   ├── stocks.py     # Stock endpoints
-│   │   │   └── portfolios.py # Portfolio endpoints
-│   │   ├── collectors/       # Data collectors
-│   │   │   ├── kis_api.py    # KIS API client
+│   │   ├── api/                 # API endpoints
+│   │   │   ├── stocks.py        # Stock list, detail, overview, sectors
+│   │   │   ├── analysis.py      # Analysis, commentary, news, sentiment
+│   │   │   ├── portfolios.py    # Portfolio CRUD, scoring
+│   │   │   ├── backtest.py      # Backtesting engine
+│   │   │   └── alerts.py        # Score change alerts, email
+│   │   ├── collectors/          # Data collectors
+│   │   │   ├── kis_api.py       # KIS API (auto token refresh, rate limit)
 │   │   │   ├── pykrx_collector.py
-│   │   │   ├── naver_finance.py
+│   │   │   ├── naver_finance.py # Financial data & sector info
 │   │   │   ├── news_collector.py
 │   │   │   └── google_trends.py
-│   │   ├── services/         # Business logic
-│   │   │   ├── technical.py  # Technical analysis
-│   │   │   ├── fundamental.py # Fundamental analysis
-│   │   │   ├── sentiment.py  # Sentiment analysis
-│   │   │   ├── scoring.py    # Score calculation
-│   │   │   └── commentary.py # LLM commentary
-│   │   ├── analyzers/        # Analysis modules
-│   │   │   ├── indicators.py # Technical indicators
+│   │   ├── services/            # Business logic
+│   │   │   ├── technical.py     # Technical analysis (30 pts)
+│   │   │   ├── fundamental.py   # Fundamental analysis (50 pts)
+│   │   │   ├── sentiment.py     # Sentiment analysis (20 pts)
+│   │   │   ├── scoring.py       # Score aggregation & grading
+│   │   │   ├── commentary.py    # LLM commentary generation
+│   │   │   ├── backtesting.py   # Backtesting engine
+│   │   │   └── email_service.py # SMTP email notifications
+│   │   ├── analyzers/           # Analysis modules
+│   │   │   ├── indicators.py    # MA, RSI, MACD, volume
 │   │   │   └── openai_sentiment.py
-│   │   ├── db/               # Database
-│   │   │   ├── sqlite_db.py  # Price data (local)
-│   │   │   └── supabase_db.py # Analysis data (cloud)
-│   │   ├── models/           # Pydantic models
-│   │   └── main.py           # FastAPI app
+│   │   ├── db/                  # Database layer
+│   │   │   ├── sqlite_db.py     # Price history (local)
+│   │   │   └── supabase_db.py   # Analysis data (cloud)
+│   │   ├── models/              # Pydantic models
+│   │   └── main.py              # FastAPI app entry
+│   ├── scripts/                 # Data collection scripts
+│   ├── tests/                   # 159 unit tests
+│   ├── Dockerfile               # Cloud Run container
 │   └── requirements.txt
 ├── frontend/
 │   ├── src/
-│   │   ├── pages/            # Page components
-│   │   │   ├── Dashboard.tsx
-│   │   │   ├── StockDetailPage.tsx
-│   │   │   ├── ComparePage.tsx
-│   │   │   └── HistoryPage.tsx
-│   │   ├── components/       # UI components
-│   │   │   ├── dashboard/
-│   │   │   ├── charts/
-│   │   │   ├── analysis/
-│   │   │   └── common/
-│   │   ├── services/         # API client
-│   │   ├── stores/           # Zustand stores
-│   │   └── types/            # TypeScript types
+│   │   ├── pages/               # 8 page components
+│   │   ├── components/          # dashboard, charts, analysis, common
+│   │   ├── services/api.ts      # Axios API client
+│   │   ├── stores/              # Zustand (stock, theme)
+│   │   ├── types/               # TypeScript interfaces
+│   │   └── lib/                 # Utilities
+│   ├── vercel.json              # Vercel SPA config
 │   └── package.json
-├── scripts/                  # Automation scripts
-│   ├── collect_daily_prices.py
-│   ├── run_daily_analysis.py
-│   └── collect_news.py
-├── docs/                     # Documentation
-└── .github/workflows/        # GitHub Actions
+├── .github/workflows/           # 3 GitHub Actions pipelines
+├── docker-compose.yml
+└── docs/
 ```
 
-## Installation
+## Quick Start
 
 ### Prerequisites
 - Python 3.11+
@@ -140,37 +145,31 @@ stock_analysis/
 - OpenAI API key
 - KIS API credentials (optional)
 
-### Backend Setup
+### Backend
 
 ```bash
-# Clone repository
-git clone https://github.com/yourusername/stock_analysis.git
-cd stock_analysis
-
-# Create virtual environment
 cd backend
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# Install dependencies
 pip install -r requirements.txt
 
 # Configure environment
 cp .env.example .env
 # Edit .env with your credentials
+
+# Start server
+uvicorn app.main:app --reload --port 8000
 ```
 
-### Frontend Setup
+### Frontend
 
 ```bash
 cd frontend
-
-# Install dependencies
 npm install
-
-# Start development server
 npm run dev
 ```
+
+Access at `http://localhost:5173`
 
 ### Environment Variables
 
@@ -180,70 +179,79 @@ Create `backend/.env`:
 # Supabase
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 # OpenAI
 OPENAI_API_KEY=sk-your-api-key
 
-# KIS API (optional)
+# KIS API (optional - for real-time prices)
 KIS_APP_KEY=your-app-key
 KIS_APP_SECRET=your-app-secret
-KIS_ACCOUNT_TYPE=VIRTUAL  # or REAL
+
+# SMTP (optional - for email alerts)
+SMTP_SERVER=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email
+SMTP_PASSWORD=your-app-password
 
 # Database
-SQLITE_DB_PATH=./data/stock_prices.db
+SQLITE_DB_PATH=./data/price_history.db
+
+# CORS
+CORS_ORIGINS=http://localhost:3000,http://localhost:5173
 ```
 
-## Usage
+## API Endpoints
 
-### Start the Application
-
-```bash
-# Terminal 1: Backend
-cd backend
-source venv/bin/activate
-uvicorn app.main:app --reload --port 8000
-
-# Terminal 2: Frontend
-cd frontend
-npm run dev
-```
-
-Access the dashboard at `http://localhost:3000`
-
-### API Endpoints
-
+### Stocks
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/stocks` | List stocks with filters |
-| GET | `/api/stocks/{code}` | Get stock details |
-| GET | `/api/stocks/{code}/history` | Get price history |
+| GET | `/api/stocks` | List stocks (filter, sort, paginate) |
+| GET | `/api/stocks/{code}` | Stock detail |
+| GET | `/api/stocks/{code}/history` | Price history |
+| GET | `/api/stocks/overview` | Dashboard statistics |
+| GET | `/api/stocks/sectors` | Sector list |
 | GET | `/api/stocks/compare` | Compare multiple stocks |
-| GET | `/api/analysis/{code}` | Get analysis results |
+
+### Analysis
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/analysis/{code}` | Analysis results |
 | POST | `/api/analysis/{code}/run` | Run new analysis |
-| GET | `/api/analysis/{code}/commentary` | Get AI commentary |
-| GET | `/api/analysis/{code}/news` | Get news list |
-| PUT | `/api/analysis/{code}/news/{id}/rate` | Rate news item |
+| GET | `/api/analysis/{code}/commentary` | AI commentary |
+| GET | `/api/analysis/{code}/news` | News list |
+| PUT | `/api/analysis/{code}/news/{id}/rate` | Rate news (-10 to +10) |
+| PUT | `/api/analysis/{code}/news/rate-all` | Bulk rate unrated news |
+| GET | `/api/analysis/{code}/sentiment-score` | Sentiment score |
+| GET | `/api/analysis/{code}/history` | Score history |
+| GET | `/api/analysis/ranking` | Score ranking |
 
-### Automated Data Collection
+### Portfolios
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/portfolios` | List portfolios |
+| POST | `/api/portfolios` | Create portfolio |
+| GET | `/api/portfolios/{id}` | Portfolio detail |
+| PUT | `/api/portfolios/{id}` | Update portfolio |
+| DELETE | `/api/portfolios/{id}` | Delete portfolio |
+| POST | `/api/portfolios/{id}/stocks` | Add stock |
+| DELETE | `/api/portfolios/{id}/stocks/{code}` | Remove stock |
+| PUT | `/api/portfolios/{id}/stocks/{code}/weight` | Adjust weight |
+| GET | `/api/portfolios/{id}/score` | Portfolio score |
 
-```bash
-# Daily price collection (GitHub Actions or cron)
-python scripts/collect_daily_prices.py
-
-# Run analysis for all stocks
-python scripts/run_daily_analysis.py
-
-# Collect news
-python scripts/collect_news.py
-```
+### Backtest & Alerts
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/backtest/{code}/run` | Run backtest |
+| GET | `/api/backtest/{code}/date-range` | Available date range |
+| GET | `/api/alerts/score-changes` | Recent score changes |
+| POST | `/api/alerts/send-alert-email` | Send email alert |
 
 ## Scoring System
 
-### Grade Calculation
+### Grade Table
 
-| Grade | Score Range | Description |
-|-------|-------------|-------------|
+| Grade | Score | Description |
+|-------|-------|-------------|
 | A+ | 90-100 | Excellent |
 | A | 80-89 | Very Good |
 | B+ | 70-79 | Good |
@@ -253,125 +261,149 @@ python scripts/collect_news.py
 | D | 30-39 | Poor |
 | F | 0-29 | Very Poor |
 
-### Score Components
+### Score Breakdown
 
 ```
-Total Score (100) = Technical (30) + Fundamental (50) + Sentiment (20)
+Total (100) = Technical (30) + Fundamental (50) + Sentiment (20)
 
-Technical (30):
-├── MA Arrangement: 6
-├── MA Divergence: 6
-├── RSI: 5
-├── MACD: 5
-└── Volume: 8
+Technical (30):            Fundamental (50):          Sentiment (20):
+├── MA Arrangement: 6      ├── PER: 8                 ├── News Sentiment: 10
+├── MA Divergence: 6       ├── PBR: 7                 ├── News Impact: 6
+├── RSI: 5                 ├── PSR: 5                 └── News Volume: 4
+├── MACD: 5                ├── Revenue Growth: 6
+└── Volume: 8              ├── OP Growth: 6
+                           ├── ROE: 5
+                           ├── OP Margin: 5
+                           ├── Debt Ratio: 4
+                           └── Current Ratio: 4
+```
 
-Fundamental (50):
-├── PER: 8
-├── PBR: 7
-├── PSR: 5
-├── Revenue Growth: 6
-├── OP Growth: 6
-├── ROE: 5
-├── OP Margin: 5
-├── Debt Ratio: 4
-└── Current Ratio: 4
+## Deployment
 
-Sentiment (20):
-├── News Sentiment: 10
-├── News Impact: 6
-└── News Volume/Interest: 4
+### Production Architecture
+
+| Component | Platform | URL |
+|-----------|----------|-----|
+| Frontend | Vercel | https://frontend-pi-coral-73.vercel.app |
+| Backend | Google Cloud Run (Seoul) | https://stock-analysis-backend-675597240676.asia-northeast3.run.app |
+| Database | Supabase (PostgreSQL) | Cloud managed |
+| CI/CD | GitHub Actions | 3 automated pipelines |
+
+### Deploy Backend (Cloud Run)
+
+```bash
+# Build & push Docker image
+gcloud builds submit --tag asia-northeast3-docker.pkg.dev/PROJECT_ID/stock-analysis/backend:latest \
+  --region=asia-northeast3 ./backend
+
+# Deploy to Cloud Run
+gcloud run deploy stock-analysis-backend \
+  --image=asia-northeast3-docker.pkg.dev/PROJECT_ID/stock-analysis/backend:latest \
+  --region=asia-northeast3 --allow-unauthenticated --port=8080 \
+  --memory=512Mi --cpu=1 --min-instances=0 --max-instances=3 \
+  --env-vars-file=backend/env.yaml
+```
+
+### Deploy Frontend (Vercel)
+
+```bash
+cd frontend
+vercel --prod
+# Set VITE_API_URL environment variable to Cloud Run URL
+```
+
+### Docker (Local)
+
+```bash
+docker-compose up -d
+# Frontend: http://localhost:3000
+# Backend:  http://localhost:8000
+```
+
+## GitHub Actions CI/CD
+
+| Workflow | Schedule | Description |
+|----------|----------|-------------|
+| `collect-prices.yml` | Weekdays 20:30 KST | Price collection + technical indicators + scoring |
+| `collect-quarterly.yml` | Every quarter | Financial statements & valuation metrics |
+| `collect-sentiment.yml` | Mon/Thu 21:00 KST | News collection & sentiment analysis |
+
+## Database Schema
+
+### Supabase (PostgreSQL) - Cloud
+| Table | Description |
+|-------|-------------|
+| `stocks_anal` | Stock master (code, name, sector, market, financials) |
+| `analysis_results_anal` | Analysis scores (technical, fundamental, sentiment, total, grade) |
+| `news_ratings_anal` | News items with manual ratings (-10 to +10) |
+| `portfolios_anal` | Portfolio definitions |
+| `portfolio_stocks_anal` | Portfolio holdings with weights |
+| `sector_averages_anal` | Sector benchmark metrics |
+
+### SQLite - Local
+| Table | Description |
+|-------|-------------|
+| `price_history` | Daily OHLCV data |
+| `technical_indicators` | Pre-calculated MA, RSI, MACD, volume ratio |
+
+## Testing
+
+```bash
+cd backend
+pytest tests/ -v
+# 159 passed
+```
+
+```bash
+cd frontend
+npx tsc --noEmit   # TypeScript check
+npx vite build      # Build verification
 ```
 
 ## Screenshots
 
 ### 1. Main Dashboard
-The main dashboard displays all stocks with their scores, grades, and score distribution bars. Users can filter by sector, market (KOSPI/KOSDAQ), and sort by various criteria.
-
 ![Main Dashboard](docs/screenshots/dash_00.png)
 
-**Features shown:**
-- Portfolio summary (total stocks, average score, gainers/losers)
-- Stock table with real-time prices and change rates
-- Visual score breakdown bars (Technical/Fundamental/Sentiment)
-- Quick grade indicators (A+, A, B+, B, C+, C, D, F)
+Portfolio summary with stats cards, stock table with real-time prices, score distribution bars, and grade indicators.
 
----
-
-### 2. Stock Detail - Overview & AI Commentary
-The stock detail page shows comprehensive analysis with AI-generated investment commentary.
-
+### 2. Stock Detail - AI Commentary
 ![Stock Overview](docs/screenshots/stock_news_04.png)
 
-**Features shown:**
-- Stock header with current price and change rate
-- Total score with grade badge
-- Score breakdown cards (Technical 23.0/30, Fundamental 27.0/50, Sentiment 15.0/20)
-- AI-generated Korean investment commentary with key insights and risk factors
+Comprehensive analysis with AI-generated Korean investment commentary, score breakdown, and key insights.
 
----
-
-### 3. Technical Analysis Tab
-Interactive price chart with moving average overlays and detailed technical indicators.
-
+### 3. Technical Analysis
 ![Technical Analysis](docs/screenshots/stock_tech_02.png)
 
-**Features shown:**
-- Price chart with MA5, MA20, MA60, MA120 lines
-- Technical score cards (MA Arrangement, MA Divergence, RSI, MACD, Volume)
-- Detailed indicator values and interpretation
-- RSI gauge visualization (oversold/neutral/overbought zones)
+Interactive price chart with MA overlays, RSI gauge, MACD indicators, and volume analysis.
 
----
-
-### 4. Fundamental Analysis Tab
-Comprehensive financial metrics organized by category with visual scoring.
-
+### 4. Fundamental Analysis
 ![Fundamental Analysis](docs/screenshots/stock_basic_03.png)
 
-**Features shown:**
-- Valuation metrics: PER (9.7), PBR (1.60), PSR (4.44)
-- Profitability indicators: ROE (21.1%), Operating Margin (43.6%)
-- Growth metrics: Revenue Growth (+41.8%), OP Growth (+54.0%)
-- Financial stability: Debt Ratio (16.0%), Current Ratio (231.2%)
-
----
+Financial metrics organized by valuation, profitability, growth, and stability categories.
 
 ### 5. Sentiment Analysis & News Rating
-Manual news rating system that allows users to override automatic sentiment analysis.
-
 ![Sentiment Analysis](docs/screenshots/stock_total_01.png)
 
-**Features shown:**
-- Current sentiment status with manual/auto indicator
-- Manual rating notification when user ratings are applied
-- News rating interface with -10 to +10 scale
-- Individual news items with rating buttons
-- Real-time score recalculation based on user ratings
+Manual news rating interface (-10 to +10) with real-time score recalculation.
 
 ## Roadmap
 
-- [x] Phase 1: MVP (Week 1-4)
-  - [x] Data collection infrastructure
-  - [x] Analysis engine
-  - [x] React dashboard
-  - [x] LLM commentary
-  - [x] Manual news rating
+- [x] Phase 1: Core System (Week 1-4)
+  - [x] Data collection infrastructure (KIS, pykrx, Naver Finance, News)
+  - [x] Analysis engine (Technical + Fundamental + Sentiment)
+  - [x] React dashboard with stock table
+  - [x] LLM commentary & manual news rating
 
-- [x] Phase 2: Week 5
-  - [x] Stock comparison
-  - [x] Analysis history
-
-- [x] Phase 2: Week 6
-  - [x] Backtesting module (technical score-based buy/sell simulation)
-
-- [x] Phase 2: Week 7
+- [x] Phase 2: Advanced Features (Week 5-8)
+  - [x] Stock comparison (up to 4 stocks)
+  - [x] Analysis history tracking
+  - [x] Backtesting engine (200-day sliding window)
   - [x] Alert system (toast, browser notification, email)
-  - [x] Dark mode (Light/Dark/System)
-
-- [x] Phase 2: Week 8
-  - [x] Portfolio simulation (CRUD, weight adjustment, scoring)
-  - [x] Performance optimization (code splitting, bundle optimization)
-  - [x] Docker deployment (Dockerfile, docker-compose, nginx)
+  - [x] Dark mode (Light / Dark / System)
+  - [x] Portfolio simulation (CRUD, weight, scoring)
+  - [x] Docker + Cloud Run + Vercel deployment
+  - [x] GitHub Actions automated data pipelines
 
 ## Contributing
 
@@ -396,4 +428,5 @@ This software is for educational and informational purposes only. It is not inte
 - [pykrx](https://github.com/sharebook-kr/pykrx) - Korean stock data library
 - [FastAPI](https://fastapi.tiangolo.com/) - Modern Python web framework
 - [Supabase](https://supabase.com/) - Open source Firebase alternative
-- [OpenAI](https://openai.com/) - GPT-4o-mini for sentiment analysis
+- [OpenAI](https://openai.com/) - GPT-4o-mini for sentiment analysis & commentary
+- [TradingView Lightweight Charts](https://github.com/nicehash/lightweight-charts) - Interactive price charts
